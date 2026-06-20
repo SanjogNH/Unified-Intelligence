@@ -720,14 +720,32 @@ def run(sales_path: str, city_path: str = None, ads_path: str = None,
         "city":     city_rows,
     }
 
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    # Split output into 4 files (each <2.5MB) for GitHub Pages compatibility
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
+    with open(output_dir / "index.json", "w", encoding="utf-8") as f:
+        json.dump({"meta": meta, "channels": channels, "heatmap": heatmap, "actions": actions},
+                  f, ensure_ascii=False, separators=(",", ":"))
 
-    size_kb = output_file.stat().st_size / 1024
-    print(f"[process.py] Done. Output: {output_path}  ({size_kb:.0f} KB)")
+    all_platforms = sorted(set(r["platform"] for r in sku_rows))
+    mid = len(all_platforms) // 2
+    plats_a = set(all_platforms[:mid])
+    plats_b = set(all_platforms[mid:])
+
+    with open(output_dir / "skus_a.json", "w", encoding="utf-8") as f:
+        json.dump({"platforms": sorted(plats_a), "skus": [r for r in sku_rows if r["platform"] in plats_a]},
+                  f, ensure_ascii=False, separators=(",", ":"))
+
+    with open(output_dir / "skus_b.json", "w", encoding="utf-8") as f:
+        json.dump({"platforms": sorted(plats_b), "skus": [r for r in sku_rows if r["platform"] in plats_b]},
+                  f, ensure_ascii=False, separators=(",", ":"))
+
+    with open(output_dir / "city.json", "w", encoding="utf-8") as f:
+        json.dump({"city": city_rows}, f, ensure_ascii=False, separators=(",", ":"))
+
+    total_kb = sum((output_dir / fn).stat().st_size for fn in ["index.json","skus_a.json","skus_b.json","city.json"]) / 1024
+    print(f"[process.py] Done. 4 files in {output_dir}  ({total_kb:.0f} KB total)")
     print(f"  SKUs: {len(sku_rows)}, Channels: {len(channels)}, City rows: {len(city_rows)}")
     print(f"  Flags — critical: {flag_totals['critical']}, warning: {flag_totals['warning']}, opportunity: {flag_totals['opportunity']}")
 
