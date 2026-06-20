@@ -720,32 +720,76 @@ def run(sales_path: str, city_path: str = None, ads_path: str = None,
         "city":     city_rows,
     }
 
-    # Split output into 4 files (each <2.5MB) for GitHub Pages compatibility
+    # ── Slim output: short keys + rounded floats = ~60% smaller ──────────────
+    def r2(v):
+        """Round floats to 2dp for JSON compactness."""
+        if v is None: return None
+        if isinstance(v, float): return round(v, 2)
+        return v
+
+    def slim_sku(r):
+        return {
+            "p":  r["platform"],
+            "sk": r["sku"],
+            "n":  r["short_name"],
+            "c":  r["category"],
+            "d":  r["mtd_date"],
+            "pr": r2(r["pro_ratio"]),
+            "pR": r2(r["planned_rev"]),
+            "pQ": r2(r["planned_qty"]),
+            "xR": r2(r["prorata_rev"]),
+            "xQ": r2(r["prorata_qty"]),
+            "aR": r2(r["mtd_actual_rev"]),
+            "aQ": r2(r["mtd_actual_qty"]),
+            "lR": r2(r["lm_rev"]),
+            "lQ": r2(r["lm_qty"]),
+            "3R": r2(r["l3m_rev"]),
+            "3Q": r2(r["l3m_qty"]),
+            "gU": r2(r.get("gross_units")),
+            "gS": r2(r.get("gross_sales")),
+            "aS": r2(r.get("ad_spend")),
+            "aI": r2(r.get("ad_impressions")),
+            "aC": r2(r.get("ad_clicks")),
+            "aU": r2(r.get("ad_units")),
+            "aX": r2(r.get("ad_sales")),
+            "fU": r2(r.get("lfm_gross_units")),
+            "lf": r2(r.get("lfm_roas")),
+            "tf": r.get("top_flag"),
+            "fs": r.get("flags"),
+        }
+
+    def slim_city(r):
+        return {
+            "p": r["platform"],
+            "c": r["city"],
+            "s": r["sku"],
+            "n": r["short_name"],
+            "g": r["category"],
+            "a": r.get("mtd_qty",  0),
+            "l": r.get("lm_qty",   0),
+            "3": r.get("l3m_qty",  0),
+        }
+
     output_dir = Path(output_path).parent
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    # index.json — meta + channels + heatmap + actions (~82 KB)
     with open(output_dir / "index.json", "w", encoding="utf-8") as f:
         json.dump({"meta": meta, "channels": channels, "heatmap": heatmap, "actions": actions},
                   f, ensure_ascii=False, separators=(",", ":"))
 
-    all_platforms = sorted(set(r["platform"] for r in sku_rows))
-    mid = len(all_platforms) // 2
-    plats_a = set(all_platforms[:mid])
-    plats_b = set(all_platforms[mid:])
-
-    with open(output_dir / "skus_a.json", "w", encoding="utf-8") as f:
-        json.dump({"platforms": sorted(plats_a), "skus": [r for r in sku_rows if r["platform"] in plats_a]},
+    # skus.json — all SKU rows, slimmed (~1.4 MB vs 3.9 MB before)
+    with open(output_dir / "skus.json", "w", encoding="utf-8") as f:
+        json.dump({"skus": [slim_sku(r) for r in sku_rows]},
                   f, ensure_ascii=False, separators=(",", ":"))
 
-    with open(output_dir / "skus_b.json", "w", encoding="utf-8") as f:
-        json.dump({"platforms": sorted(plats_b), "skus": [r for r in sku_rows if r["platform"] in plats_b]},
-                  f, ensure_ascii=False, separators=(",", ":"))
-
+    # city.json — city rows, slimmed (~1.3 MB vs 1.7 MB before)
     with open(output_dir / "city.json", "w", encoding="utf-8") as f:
-        json.dump({"city": city_rows}, f, ensure_ascii=False, separators=(",", ":"))
+        json.dump({"city": [slim_city(r) for r in city_rows]},
+                  f, ensure_ascii=False, separators=(",", ":"))
 
-    total_kb = sum((output_dir / fn).stat().st_size for fn in ["index.json","skus_a.json","skus_b.json","city.json"]) / 1024
-    print(f"[process.py] Done. 4 files in {output_dir}  ({total_kb:.0f} KB total)")
+    total_kb = sum((output_dir / fn).stat().st_size for fn in ["index.json","skus.json","city.json"]) / 1024
+    print(f"[process.py] Done. 3 files in {output_dir}  ({total_kb:.0f} KB total)")
     print(f"  SKUs: {len(sku_rows)}, Channels: {len(channels)}, City rows: {len(city_rows)}")
     print(f"  Flags — critical: {flag_totals['critical']}, warning: {flag_totals['warning']}, opportunity: {flag_totals['opportunity']}")
 
