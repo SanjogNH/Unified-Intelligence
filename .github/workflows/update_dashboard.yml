@@ -2,7 +2,6 @@ name: Update Dashboard Data
 
 on:
   schedule:
-    # Runs at 7:30 AM IST every day (02:00 UTC)
     - cron: "0 2 * * *"
   workflow_dispatch:
 
@@ -40,6 +39,6 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add output/index.json output/skus_a.json output/skus_b.json output/city.json
+          git add output/index.json output/skus.json output/city.json
           git diff --staged --quiet || git commit -m "chore: update dashboard data [$(date -u '+%Y-%m-%d %H:%M UTC')]"
           git push
