@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nat Habit | Unified Intelligence Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --terra:#C85C38;--terra-deep:#A8472A;--terra-light:#D97B56;
+  --blush:#F2B8A0;--blush-pale:#FAE4D8;--blush-faint:#FDF3EE;
+  --cream:#FDF8F4;--cream-mid:#F7EDE5;--parchment:#EDD9CE;--linen:#FBF5F0;
+  --forest:#2A4A38;--forest-mid:#3D6B50;--sage:#7AAB8A;--sage-faint:#EAF3EE;
+  --brown:#2C1A12;--brown-mid:#5C3D2E;--brown-light:#8B6554;--brown-faint:#C4A090;
+  --green:#2A6644;--teal:#2A7A6A;--amber:#9B6E10;--red:#B83020;
+  --surface:#FBF5F0;--surface2:#F7EDE5;--border:#EDD9CE;--border2:#D4B8A8;
+  --text:#2C1A12;--muted:#8B6554;
+  --sh-sm:0 1px 4px rgba(200,92,56,.08),0 4px 14px rgba(200,92,56,.07);
+  --sh-md:0 4px 8px rgba(200,92,56,.10),0 16px 40px rgba(200,92,56,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--cream);background-image:radial-gradient(ellipse 900px 600px at 0% 0%,rgba(200,92,56,.06) 0%,transparent 55%),radial-gradient(ellipse 700px 500px at 100% 100%,rgba(200,92,56,.05) 0%,transparent 55%);background-attachment:fixed;color:var(--brown);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;font-size:13px;}
+
+/* HEADER */
+header{background:linear-gradient(135deg,#A8472A 0%,#C85C38 45%,#D4663F 100%);height:64px;padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;box-shadow:0 3px 28px rgba(168,71,42,.35);}
+header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 0%,var(--blush) 30%,#fff 50%,var(--blush) 70%,transparent 100%);opacity:.4;}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-logo{height:40px;width:40px;border-radius:9px;object-fit:cover;box-shadow:0 4px 14px rgba(0,0,0,.22);border:1.5px solid rgba(255,255,255,.2);flex-shrink:0;}
+.brand-text h1{font-size:15px;font-weight:800;color:#fff;letter-spacing:.03em;line-height:1;}
+.brand-text h1 span{color:var(--blush);font-weight:400;}
+.brand-text p{font-size:9px;color:rgba(242,184,160,.7);font-family:'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin-top:3px;}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.hdr-badge{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:4px 12px;font-size:10px;font-weight:600;color:rgba(255,255,255,.9);font-family:'JetBrains Mono',monospace;}
+.hdr-badge.ok{border-color:rgba(122,171,138,.4);color:#b5d4be;}
+.hdr-divider{width:1px;height:24px;background:rgba(255,255,255,.2);}
+.view-tabs{display:flex;gap:2px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:3px;}
+.view-tab{padding:4px 11px;border-radius:5px;cursor:pointer;font-size:10px;color:rgba(255,255,255,.65);transition:all .15s;white-space:nowrap;}
+.view-tab.active{background:rgba(255,255,255,.22);color:#fff;font-weight:600;}
+.view-tab:hover:not(.active){color:rgba(255,255,255,.85);}
+
+/* FILTER BAR */
+.filter-bar{background:var(--linen);border-bottom:1px solid var(--border);padding:9px 24px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:64px;z-index:190;}
+.filter-chip-group{display:flex;align-items:center;gap:6px;}
+.fbar-label{color:var(--muted);font-size:9px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;}
+.filter-divider{width:1px;height:22px;background:var(--border);flex-shrink:0;}
+.ms-wrap{position:relative;}
+.ms-trigger{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 10px;cursor:pointer;font-size:11px;color:var(--text);white-space:nowrap;min-width:130px;user-select:none;transition:border-color .15s;}
+.ms-trigger:hover{border-color:var(--border2);}
+.ms-trigger.has-selection{border-color:var(--terra);color:var(--terra);}
+.ms-trigger .caret{margin-left:auto;font-size:9px;color:var(--muted);transition:transform .15s;}
+.ms-trigger.open .caret{transform:rotate(180deg);}
+.ms-count{background:var(--terra);color:white;border-radius:10px;padding:1px 6px;font-size:9px;font-family:'JetBrains Mono',monospace;}
+.ms-dropdown{display:none;position:absolute;top:calc(100% + 4px);left:0;background:var(--linen);border:1px solid var(--border2);border-radius:9px;min-width:200px;max-width:260px;box-shadow:0 8px 32px rgba(44,26,18,.12);z-index:500;overflow:hidden;}
+.ms-dropdown.open{display:block;}
+.ms-search-wrap{padding:7px 10px;border-bottom:1px solid var(--border);}
+.ms-search{width:100%;background:var(--cream-mid);border:1px solid var(--border);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;padding:5px 9px;border-radius:5px;outline:none;}
+.ms-search:focus{border-color:var(--terra);}
+.ms-actions{display:flex;gap:6px;padding:6px 10px;border-bottom:1px solid var(--border);}
+.ms-action-btn{font-size:10px;color:var(--terra);cursor:pointer;font-family:'JetBrains Mono',monospace;background:none;border:none;padding:0;}
+.ms-action-btn:hover{text-decoration:underline;}
+.ms-list{max-height:220px;overflow-y:auto;padding:4px 0;}
+.ms-item{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:11px;transition:background .1s;}
+.ms-item:hover{background:var(--cream-mid);}
+.ms-item.checked{color:var(--terra);}
+.ms-checkbox{width:14px;height:14px;border:1px solid var(--border2);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;transition:all .1s;}
+.ms-item.checked .ms-checkbox{background:var(--terra);border-color:var(--terra);color:white;}
+.ms-item-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ms-item-count{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.active-filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.active-chip{display:flex;align-items:center;gap:5px;border-radius:20px;padding:3px 8px;font-size:10px;}
+.active-chip .remove{cursor:pointer;opacity:.7;font-size:11px;line-height:1;}
+.clear-all-btn{font-size:10px;color:var(--red);cursor:pointer;font-family:'JetBrains Mono',monospace;background:none;border:none;padding:0;opacity:.7;}
+.overlay{display:none;position:fixed;inset:0;z-index:100;}
+.overlay.open{display:block;}
+
+/* MAIN */
+.main{padding:18px 24px;display:flex;flex-direction:column;gap:18px;}
+.section-title{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-family:'JetBrains Mono',monospace;margin-bottom:10px;}
+.no-data{text-align:center;padding:40px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+
+/* SUMMARY CARDS */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;}
+.summary-card{background:var(--linen);border:1px solid var(--parchment);border-radius:10px;padding:14px;position:relative;overflow:hidden;box-shadow:var(--sh-sm);}
+.summary-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--terra);}
+.card-label{color:var(--muted);font-size:9px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;}
+.card-value{font-size:21px;font-weight:700;letter-spacing:-.5px;color:var(--brown);}
+.card-sub{display:flex;gap:8px;margin-top:5px;align-items:center;}
+.card-ach{font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.card-plan{color:var(--muted);font-size:10px;}
+.ach-bar{height:3px;background:var(--parchment);border-radius:2px;margin-top:8px;}
+.ach-bar-fill{height:100%;border-radius:2px;}
+
+/* CHANNEL CARDS */
+.channel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;}
+.channel-card{background:var(--linen);border:1px solid var(--parchment);border-radius:10px;padding:14px;cursor:pointer;transition:border-color .15s,box-shadow .15s;box-shadow:var(--sh-sm);position:relative;}
+.channel-card:hover{border-color:var(--terra-light);box-shadow:var(--sh-md);}
+.ch-header{display:flex;flex-direction:column;align-items:flex-start;margin-bottom:11px;gap:2px;}
+.ch-name{font-weight:700;font-size:13px;}
+.ch-date{color:var(--muted);font-size:9px;font-family:'JetBrains Mono',monospace;}
+.ch-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.ch-metric-label{color:var(--muted);font-size:9px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:2px;}
+.ch-metric-val{font-size:13px;font-weight:700;}
+.ch-metric-sub{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.ch-bar{height:4px;background:var(--parchment);border-radius:2px;margin-top:10px;}
+.ch-bar-fill{height:100%;border-radius:2px;}
+.ch-signal{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:6px;line-height:1.4;padding-top:6px;border-top:1px solid var(--border);}
+.ch-flag-dots{display:flex;gap:3px;margin-top:4px;align-items:center;}
+.flag-dot{width:7px;height:7px;border-radius:50%;}
+.flag-dot.critical{background:var(--red);}
+.flag-dot.warning{background:var(--amber);}
+.flag-dot.opportunity{background:var(--green);}
+.ch-intel-btn{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;background:var(--terra);border:none;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;z-index:2;font-family:'JetBrains Mono',monospace;line-height:1;flex-shrink:0;box-shadow:0 2px 6px rgba(200,92,56,.4);letter-spacing:0;}
+.ch-intel-btn:hover{background:var(--terra-deep);transform:scale(1.12);}
+
+/* TABLE */
+.table-section{background:var(--linen);border:1px solid var(--parchment);border-radius:10px;overflow:hidden;box-shadow:var(--sh-sm);}
+.table-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.table-title{font-weight:700;font-size:13px;color:var(--brown);}
+.table-search{background:var(--cream-mid);border:1px solid var(--border);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;padding:5px 10px;border-radius:6px;outline:none;width:200px;}
+.table-search:focus{border-color:var(--terra);}
+.table-wrap{overflow-x:auto;max-height:520px;overflow-y:auto;}
+table{width:100%;border-collapse:collapse;font-size:11.5px;}
+thead{position:sticky;top:0;z-index:10;}
+th{background:var(--cream-mid);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;padding:9px 12px;text-align:right;white-space:nowrap;cursor:pointer;user-select:none;border-bottom:1px solid var(--border);}
+th:first-child,th:nth-child(2),th:nth-child(3){text-align:left;}
+th:hover{color:var(--brown);}
+th .th-inner{display:flex;align-items:center;justify-content:flex-end;gap:4px;}
+th:first-child .th-inner,th:nth-child(2) .th-inner,th:nth-child(3) .th-inner{justify-content:flex-start;}
+th .sort-arrow{opacity:0;font-size:10px;}
+th:hover .sort-arrow{opacity:.5;}
+th.sort-active .sort-arrow{opacity:1;color:var(--terra);}
+td{padding:7px 12px;border-bottom:1px solid rgba(237,217,206,.5);vertical-align:middle;white-space:nowrap;text-align:right;}
+td:first-child,td:nth-child(2),td:nth-child(3){text-align:left;}
+tr:hover td{background:rgba(200,92,56,.03);}
+.sku-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--terra);background:rgba(200,92,56,.1);padding:2px 6px;border-radius:4px;}
+.cat-tag{font-size:10px;color:var(--forest-mid);background:rgba(42,74,56,.1);padding:2px 6px;border-radius:4px;}
+.channel-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;}
+.ach-pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;min-width:50px;text-align:center;}
+.ach-good{background:rgba(42,102,68,.15);color:var(--green);}
+.ach-ok{background:rgba(155,110,16,.15);color:var(--amber);}
+.ach-bad{background:rgba(184,48,32,.15);color:var(--red);}
+.flag-pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px;vertical-align:middle;}
+.fp-critical{background:rgba(184,48,32,.15);color:var(--red);}
+.fp-warning{background:rgba(155,110,16,.15);color:var(--amber);}
+.fp-opportunity{background:rgba(42,102,68,.15);color:var(--green);}
+.num{font-family:'JetBrains Mono',monospace;}
+.num-muted{color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.perf-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;flex-shrink:0;vertical-align:middle;}
+.perf-dot.green{background:var(--green);}
+.perf-dot.amber{background:var(--amber);}
+.perf-dot.red{background:var(--red);}
+.perf-dot.grey{background:var(--parchment);}
+
+/* PAGINATION */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-top:1px solid var(--border);color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;}
+.page-btns{display:flex;gap:3px;}
+.page-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;font-family:'JetBrains Mono',monospace;}
+.page-btn:disabled{opacity:.3;cursor:default;}
+.page-btn.active{background:var(--terra);border-color:var(--terra);color:white;}
+
+/* CATEGORY VIEW */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.cat-row{padding:10px 12px;margin-bottom:6px;border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .15s,box-shadow .15s;background:var(--surface);}
+.cat-row:hover{border-color:var(--terra-light);box-shadow:var(--sh-sm);}
+.cat-row-header{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.cat-row-name{font-size:11.5px;font-weight:600;flex:1;}
+.mini-bar-wrap{flex:1;max-width:80px;}
+.mini-bar{height:4px;background:var(--parchment);border-radius:3px;}
+.mini-bar-fill{height:100%;border-radius:3px;}
+.cat-nums{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid var(--border);padding-top:7px;}
+.cat-num{text-align:center;padding:0 4px;border-right:1px solid var(--border);}
+.cat-num:last-child{border-right:none;}
+.cat-num-val{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;color:var(--brown);display:block;}
+.cat-num-label{color:var(--muted);font-size:8px;text-transform:uppercase;letter-spacing:.04em;display:block;margin-top:2px;}
+.cat-sort-bar{display:flex;gap:4px;flex-wrap:wrap;padding:8px 16px;border-bottom:1px solid var(--border);background:var(--cream-mid);}
+.cat-sort-btn{background:var(--linen);border:1px solid var(--border);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9.5px;padding:4px 10px;border-radius:5px;cursor:pointer;text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:4px;transition:all .1s;white-space:nowrap;}
+.cat-sort-btn:hover{border-color:var(--terra-light);color:var(--terra);}
+.cat-sort-btn.active{background:var(--blush-pale);border-color:var(--terra);color:var(--terra-deep);font-weight:700;}
+
+/* CITY VIEW */
+.city-platform-card{background:var(--linen);border:1px solid var(--parchment);border-radius:10px;overflow:hidden;box-shadow:var(--sh-sm);margin-bottom:14px;}
+.city-platform-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.city-platform-title{font-weight:700;font-size:13px;}
+.city-table{width:100%;border-collapse:collapse;font-size:11px;}
+.city-table th{background:var(--cream-mid);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.3px;padding:6px 8px;text-align:right;white-space:nowrap;cursor:pointer;}
+.city-table th:first-child{text-align:left;}
+.city-table td{padding:6px 8px;border-bottom:1px solid rgba(237,217,206,.4);text-align:right;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.city-table td:first-child{text-align:left;font-family:'Plus Jakarta Sans',sans-serif;}
+.city-table tr:hover td{background:rgba(200,92,56,.03);}
+.city-bar-outer{height:4px;background:var(--parchment);border-radius:2px;width:60px;display:inline-block;}
+.city-bar-inner{height:100%;border-radius:2px;}
+.city-show-btn{background:none;border:1px solid var(--border);color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;padding:4px 12px;border-radius:5px;cursor:pointer;display:block;margin:8px auto;}
+.city-show-btn:hover{border-color:var(--terra);color:var(--terra);}
+.city-sort-mini-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 7px;border-radius:4px;cursor:pointer;white-space:nowrap;}
+.city-sort-mini-btn.active{background:var(--blush-pale);border-color:var(--terra);color:var(--terra-deep);font-weight:700;}
+
+/* SIGNALS VIEW */
+.signals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:18px;}
+.sig-stat{background:var(--linen);border:1px solid var(--parchment);border-radius:10px;padding:14px;position:relative;overflow:hidden;box-shadow:var(--sh-sm);}
+.sig-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.sig-stat.critical::before{background:var(--red);}
+.sig-stat.warning::before{background:var(--amber);}
+.sig-stat.opportunity::before{background:var(--green);}
+.sig-stat.neutral::before{background:var(--muted);}
+.sig-stat-val{font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1.1;}
+.sig-stat-label{color:var(--muted);font-size:9px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.8px;margin-top:5px;}
+.action-list{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+.action-card{background:var(--linen);border:1px solid var(--parchment);border-radius:10px;padding:12px 14px;display:flex;align-items:flex-start;gap:12px;box-shadow:var(--sh-sm);}
+.action-card.critical{border-left:3px solid var(--red);}
+.action-card.warning{border-left:3px solid var(--amber);}
+.action-card.opportunity{border-left:3px solid var(--green);}
+.action-rank{font-size:11px;font-weight:700;color:var(--muted);font-family:'JetBrains Mono',monospace;min-width:20px;padding-top:1px;}
+.action-body{flex:1;}
+.action-title{font-size:12px;font-weight:700;color:var(--brown);margin-bottom:3px;}
+.action-detail{font-size:10px;color:var(--muted);line-height:1.5;}
+.action-impact{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;white-space:nowrap;padding-top:1px;}
+.action-impact.critical{color:var(--red);}
+.action-impact.warning{color:var(--amber);}
+.action-impact.opportunity{color:var(--green);}
+
+/* HEATMAP */
+.heatmap-wrap{background:var(--linen);border:1px solid var(--parchment);border-radius:10px;overflow:hidden;box-shadow:var(--sh-sm);margin-bottom:18px;}
+.heatmap-scroll{overflow-x:auto;padding:0 0 4px;}
+.heatmap-table{border-collapse:collapse;font-size:10px;white-space:nowrap;}
+.heatmap-table th{background:var(--cream-mid);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.3px;padding:7px 10px;text-align:center;border-bottom:1px solid var(--border);position:sticky;top:0;}
+.heatmap-table th:first-child{text-align:left;position:sticky;left:0;z-index:2;min-width:140px;}
+.heatmap-table td{padding:5px 8px;border-bottom:1px solid rgba(237,217,206,.3);text-align:center;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;}
+.heatmap-table td:first-child{text-align:left;font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:500;position:sticky;left:0;background:var(--linen);border-right:1px solid var(--border);}
+.hm-good{background:rgba(42,102,68,.18);color:var(--green);}
+.hm-ok{background:rgba(155,110,16,.15);color:var(--amber);}
+.hm-bad{background:rgba(184,48,32,.15);color:var(--red);}
+.hm-none{color:var(--parchment);}
+
+/* INTEL MODAL */
+.intel-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(44,26,18,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;}
+.intel-overlay.open{display:flex;}
+.intel-modal{background:var(--linen);border:1px solid var(--parchment);border-radius:16px;width:min(960px,96vw);max-height:88vh;box-shadow:0 20px 60px rgba(44,26,18,.28);display:flex;flex-direction:column;overflow:hidden;}
+.intel-modal-header{padding:16px 20px;background:linear-gradient(135deg,#A8472A 0%,#C85C38 50%,#D4663F 100%);display:flex;align-items:center;gap:12px;flex-shrink:0;position:relative;}
+.intel-modal-header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,var(--blush),transparent);opacity:.5;}
+.intel-modal-platform{font-size:17px;font-weight:800;color:#fff;letter-spacing:.02em;}
+.intel-modal-sub{font-size:9px;color:rgba(242,184,160,.8);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;margin-top:1px;}
+.intel-modal-close{margin-left:auto;width:28px;height:28px;border-radius:7px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.intel-meta-bar{padding:8px 20px;display:flex;gap:10px;align-items:center;flex-shrink:0;border-bottom:1px solid var(--border);background:var(--cream-mid);flex-wrap:wrap;}
+.intel-meta-pill{font-size:9px;font-family:'JetBrains Mono',monospace;padding:3px 9px;border-radius:10px;font-weight:600;border:1px solid;}
+.intel-meta-pill.ach-ok{background:rgba(184,48,32,.1);color:#B83020;border-color:rgba(184,48,32,.25);}
+.intel-meta-pill.ach-mid{background:rgba(155,110,16,.1);color:#9B6E10;border-color:rgba(155,110,16,.25);}
+.intel-meta-pill.ach-good{background:rgba(42,102,68,.1);color:#2A6644;border-color:rgba(42,102,68,.25);}
+.intel-meta-note{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.intel-body{display:grid;grid-template-columns:1fr 1fr;flex:1;overflow:hidden;min-height:0;}
+.intel-panel{display:flex;flex-direction:column;overflow:hidden;}
+.intel-panel.lows{border-right:1px solid var(--border);}
+.intel-panel-header{padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--cream-mid);}
+.intel-panel-title{font-size:11px;font-weight:700;color:var(--brown);}
+.intel-panel-count{margin-left:auto;font-size:9px;font-family:'JetBrains Mono',monospace;background:var(--parchment);padding:2px 7px;border-radius:8px;color:var(--muted);}
+.intel-panel-scroll{flex:1;overflow-y:auto;padding:10px 14px;}
+.intel-cat-block{margin-bottom:10px;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--surface);}
+.intel-cat-header{padding:8px 12px;display:flex;align-items:center;gap:8px;background:var(--cream-mid);border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
+.intel-cat-name{font-size:11.5px;font-weight:700;color:var(--brown);flex:1;}
+.intel-cat-delta{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;}
+.intel-cat-delta.neg{background:rgba(184,48,32,.12);color:#B83020;}
+.intel-cat-delta.pos{background:rgba(42,102,68,.12);color:#2A6644;}
+.intel-cat-ach{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:4px;}
+.intel-action{display:flex;align-items:flex-start;gap:7px;padding:7px 12px;border-bottom:1px solid var(--border);font-size:9.5px;color:var(--brown-mid);}
+.intel-action:last-child{border-bottom:none;}
+.intel-action-icon{font-size:11px;flex-shrink:0;margin-top:1px;}
+.intel-action-text{line-height:1.4;}
+.intel-sku-list{display:none;}
+.intel-sku-list.open{display:block;}
+.intel-sku-row{display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;padding:5px 12px;border-bottom:1px solid rgba(237,217,206,.5);font-size:10px;cursor:pointer;}
+.intel-sku-name{color:var(--brown);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.intel-sku-ach{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;}
+.intel-sku-delta{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);white-space:nowrap;}
+.intel-empty{text-align:center;padding:30px 16px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.8;}
+.intel-footer{padding:8px 14px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--cream-mid);flex-shrink:0;}
+.intel-footer-stat{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
+.intel-footer-stat strong{color:var(--brown);}
+.intel-benchmark-strip{padding:10px 20px;background:var(--blush-faint);border-top:1px solid var(--border);display:flex;gap:20px;flex-wrap:wrap;flex-shrink:0;}
+.bench-item{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
+.bench-item strong{color:var(--brown);}
+
+/* CITY SKU MODAL */
+.city-modal-bg{display:none;position:fixed;inset:0;background:rgba(44,26,18,.6);z-index:900;align-items:center;justify-content:center;}
+.city-modal-bg.open{display:flex;}
+.city-modal{background:var(--linen);border:1px solid var(--border2);border-radius:12px;width:1100px;max-width:96vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:var(--sh-md);}
+.city-modal-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.city-modal-title{font-weight:700;font-size:14px;color:var(--brown);}
+.city-modal-close{width:26px;height:26px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.city-modal-body{overflow-y:auto;padding:14px 18px;flex:1;}
+
+/* LOADING */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;}
+.loading-spinner{width:28px;height:28px;border:3px solid var(--parchment);border-top-color:var(--terra);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--cream);}
+::-webkit-scrollbar-thumb{background:var(--parchment);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--brown-faint);}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeAllDropdowns()"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="brand">
+    <img src="data:image/png;base64,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" class="brand-logo" alt="Nat Habit">
+    <div class="brand-text">
+      <h1>Nat Habit <span>/ Unified Intelligence</span></h1>
+      <p>Sales · Ads · Decisions · Daily</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="view-tabs" id="view-tabs">
+      <div class="view-tab active" data-view="signals"   onclick="setView('signals',this)">Signals</div>
+      <div class="view-tab"        data-view="overview"  onclick="setView('overview',this)">Overview</div>
+      <div class="view-tab"        data-view="category"  onclick="setView('category',this)">Category</div>
+      <div class="view-tab"        data-view="city"      onclick="setView('city',this)">City</div>
+      <div class="view-tab"        data-view="sku"       onclick="setView('sku',this)">SKU</div>
+    </div>
+    <div class="hdr-divider"></div>
+    <div class="hdr-badge" id="rec-badge">Loading…</div>
+    <div class="hdr-badge ok" id="status-badge">—</div>
+  </div>
+</header>
+
+<!-- FILTER BAR -->
+<div class="filter-bar" id="filter-bar">
+  <div class="filter-chip-group">
+    <span class="fbar-label">Platform</span>
+    <div class="ms-wrap" id="ms-platform">
+      <div class="ms-trigger" onclick="toggleDropdown('ms-platform')">
+        <span class="ms-trigger-text">All Platforms</span>
+        <span class="caret">▾</span>
+      </div>
+      <div class="ms-dropdown">
+        <div class="ms-search-wrap"><input class="ms-search" placeholder="Search…" oninput="filterMsItems(this,'ms-platform')"></div>
+        <div class="ms-actions">
+          <button class="ms-action-btn" onclick="selectAll('ms-platform')">Select all</button>
+          <button class="ms-action-btn" onclick="clearAll('ms-platform')">Clear</button>
+        </div>
+        <div class="ms-list" id="ms-platform-list"></div>
+      </div>
+    </div>
+  </div>
+  <div class="filter-divider"></div>
+  <div class="filter-chip-group">
+    <span class="fbar-label">Category</span>
+    <div class="ms-wrap" id="ms-category">
+      <div class="ms-trigger" onclick="toggleDropdown('ms-category')">
+        <span class="ms-trigger-text">All Categories</span>
+        <span class="caret">▾</span>
+      </div>
+      <div class="ms-dropdown">
+        <div class="ms-search-wrap"><input class="ms-search" placeholder="Search…" oninput="filterMsItems(this,'ms-category')"></div>
+        <div class="ms-actions">
+          <button class="ms-action-btn" onclick="selectAll('ms-category')">Select all</button>
+          <button class="ms-action-btn" onclick="clearAll('ms-category')">Clear</button>
+        </div>
+        <div class="ms-list" id="ms-category-list"></div>
+      </div>
+    </div>
+  </div>
+  <div class="filter-divider"></div>
+  <div class="filter-chip-group">
+    <span class="fbar-label">Achievement</span>
+    <div class="ms-wrap" id="ms-ach">
+      <div class="ms-trigger" onclick="toggleDropdown('ms-ach')">
+        <span class="ms-trigger-text">All</span>
+        <span class="caret">▾</span>
+      </div>
+      <div class="ms-dropdown">
+        <div class="ms-actions" style="border-bottom:none;padding-bottom:0">
+          <button class="ms-action-btn" onclick="selectAll('ms-ach')">Select all</button>
+          <button class="ms-action-btn" onclick="clearAll('ms-ach')">Clear</button>
+        </div>
+        <div class="ms-list" id="ms-ach-list"></div>
+      </div>
+    </div>
+  </div>
+  <div class="filter-divider"></div>
+  <div class="filter-chip-group">
+    <span class="fbar-label">Flags</span>
+    <div class="ms-wrap" id="ms-flag">
+      <div class="ms-trigger" onclick="toggleDropdown('ms-flag')">
+        <span class="ms-trigger-text">All</span>
+        <span class="caret">▾</span>
+      </div>
+      <div class="ms-dropdown">
+        <div class="ms-actions" style="border-bottom:none;padding-bottom:0">
+          <button class="ms-action-btn" onclick="selectAll('ms-flag')">Select all</button>
+          <button class="ms-action-btn" onclick="clearAll('ms-flag')">Clear</button>
+        </div>
+        <div class="ms-list" id="ms-flag-list"></div>
+      </div>
+    </div>
+  </div>
+  <div class="active-filters" id="active-filters"></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main" id="main-content">
+  <div class="loading">
+    <div class="loading-spinner"></div>
+    <span>Loading dashboard data…</span>
+  </div>
+</div>
+
+<!-- INTEL MODAL -->
+<div class="intel-overlay" id="intel-overlay" onclick="closeIntelModal(event)">
+  <div class="intel-modal" onclick="event.stopPropagation()">
+    <div class="intel-modal-header">
+      <div>
+        <div class="intel-modal-platform" id="intel-platform-name">Platform</div>
+        <div class="intel-modal-sub">Channel Intelligence · Actionable Summary</div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <div id="intel-header-pills" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        <div class="intel-modal-close" onclick="closeIntelModal()">×</div>
+      </div>
+    </div>
+    <div class="intel-meta-bar" id="intel-meta-bar"></div>
+    <div class="intel-body">
+      <div class="intel-panel lows">
+        <div class="intel-panel-header">
+          <span style="font-size:14px">📉</span>
+          <span class="intel-panel-title">Lows — Needs Attention</span>
+          <span class="intel-panel-count" id="intel-lows-count">0</span>
+        </div>
+        <div class="intel-panel-scroll" id="intel-lows-body"></div>
+      </div>
+      <div class="intel-panel highs">
+        <div class="intel-panel-header">
+          <span style="font-size:14px">📈</span>
+          <span class="intel-panel-title">Highs — Push Further</span>
+          <span class="intel-panel-count" id="intel-highs-count">0</span>
+        </div>
+        <div class="intel-panel-scroll" id="intel-highs-body"></div>
+      </div>
+    </div>
+    <div class="intel-benchmark-strip" id="intel-benchmark-strip"></div>
+    <div class="intel-footer" id="intel-footer"></div>
+  </div>
+</div>
+
+<!-- CITY SKU MODAL -->
+<div class="city-modal-bg" id="city-modal-bg" onclick="closeCityModal(event)">
+  <div class="city-modal" onclick="event.stopPropagation()">
+    <div class="city-modal-header">
+      <div class="city-modal-title" id="city-modal-title">City · SKU Breakdown</div>
+      <div class="city-modal-close" onclick="closeCityModal()">×</div>
+    </div>
+    <div class="city-modal-body" id="city-modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+let DATA        = null;  // full processed.json
+let ALL_SKUS    = [];    // data.skus
+let filtered    = [];
+let currentView = 'signals';
+let currentMetric = 'revenue';
+let tableSearch = '';
+let currentPage = 1;
+const PAGE_SIZE = 50;
+let sortKey = 'rev_ach_pct';
+let sortDir = 'asc';
+
+// Filter state
+const msState = {};
+function initMs(id, items) {
+  msState[id] = { allItems: items, selected: new Set() };
+  renderMsList(id, '');
+}
+
+// ─── FORMAT ──────────────────────────────────────────────────────────────────
+const fmt    = n => n == null ? '—' : '₹' + Math.round(n).toLocaleString('en-IN');
+const fmtQ   = n => n == null ? '—' : Math.round(n).toLocaleString('en-IN');
+const fmtPct = n => n == null ? '—' : n.toFixed(1) + '%';
+const fmtX   = n => n == null ? '—' : n.toFixed(2) + '×';
+
+function achClass(p) {
+  if (p == null) return 'ach-ok';
+  return p >= 100 ? 'ach-good' : p >= 80 ? 'ach-ok' : 'ach-bad';
+}
+function achColor(p) {
+  if (p == null) return 'var(--muted)';
+  return p >= 100 ? 'var(--green)' : p >= 80 ? 'var(--amber)' : 'var(--red)';
+}
+function achBucket(p) {
+  if (p == null) return 'No Plan';
+  return p >= 100 ? '≥100% On Track' : p >= 80 ? '80-100% Near' : p >= 50 ? '50-80% Lagging' : '<50% Critical';
+}
+
+const FLAG_LABELS = {
+  spend_bleed:   'BLEED',
+  dead_sku:      'DEAD',
+  roas_degraded: 'ROAS↓',
+  tacos_high:    'TACoS↑',
+  velocity_drop: 'DROP',
+  ad_dependent:  'AD-DEP',
+  scale_now:     'SCALE↑',
+  breakout:      'BREAKOUT',
+};
+const FLAG_SEV = {
+  spend_bleed:'critical', dead_sku:'critical',
+  roas_degraded:'warning', tacos_high:'warning', velocity_drop:'warning', ad_dependent:'warning',
+  scale_now:'opportunity', breakout:'opportunity',
+};
+const FLAG_ACTIONS = {
+  spend_bleed:   'Pause or cap daily budget — spending more than ad revenue',
+  dead_sku:      'Zero sales this month — check availability, listing, or OOS',
+  roas_degraded: 'ROAS dropped >30% vs last month — review bids and keywords',
+  tacos_high:    'Ad spend >30% of gross sales — ads consuming margin',
+  velocity_drop: 'Sales running <60% of last month's pace — investigate cause',
+  ad_dependent:  '<20% organic units — fragile revenue, improve listing quality',
+  scale_now:     'High ROAS but below plan — increase budget by 30–50%',
+  breakout:      'Trending >150% vs last month — protect inventory, double down',
+};
+
+const CH_COLORS = {
+  Amazon:'#FF9900', Blinkit:'#FFE000', Zepto:'#8A2BE2', Nykaa:'#FC2779',
+  Flipkart:'#2874F0', Instamart:'#FC6D26', Meesho:'#9B59B6', Myntra:'#FF3F6C',
+  'Big Basket':'#84C225', 'First Cry':'#F7941D', Cred:'#1C1C1C',
+  Snapdeal:'#E40046', 'Pop Club':'#E91E8C', 'Jio Mart':'#0067B2',
+  Purplle:'#942D8D', 'Tata 1mg':'#E3262C', 'Tata Cliq':'#E40E24',
+  Kindlife:'#6EC52B', Pharmeasy:'#4CAF50', 'Amala Earth':'#4CAF50',
+};
+function chColor(ch) { return CH_COLORS[ch] || '#C85C38'; }
+
+// ─── LOAD DATA ───────────────────────────────────────────────────────────────
+async function loadData() {
+  try {
+    const res = await fetch('output/processed.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    DATA = await res.json();
+    ALL_SKUS = DATA.skus || [];
+    filtered = [...ALL_SKUS];
+    initFilters();
+    updateBadges();
+    render();
+  } catch(e) {
+    document.getElementById('main-content').innerHTML =
+      `<div class="loading"><span style="color:var(--red)">Failed to load processed.json: ${e.message}</span>
+       <span style="font-size:10px;color:var(--muted)">Run the GitHub Action or check the output/ folder.</span></div>`;
+    document.getElementById('rec-badge').textContent = 'Error';
+  }
+}
+
+function initFilters() {
+  const platforms = [...new Set(ALL_SKUS.map(r=>r.platform))].sort();
+  const cats      = [...new Set(ALL_SKUS.map(r=>r.category))].sort();
+  const achBuckets = ['≥100% On Track','80-100% Near','50-80% Lagging','<50% Critical','No Plan'];
+  const flagKeys  = Object.keys(FLAG_LABELS);
+
+  initMs('ms-platform', platforms.map(v=>({value:v, count:ALL_SKUS.filter(r=>r.platform===v).length})));
+  initMs('ms-category', cats.map(v=>({value:v, count:ALL_SKUS.filter(r=>r.category===v).length})));
+  initMs('ms-ach', achBuckets.map(v=>({value:v, count:0})));
+  initMs('ms-flag', flagKeys.map(v=>({value:v, label:FLAG_LABELS[v], count:ALL_SKUS.filter(r=>r.flags&&r.flags[v]).length})));
+}
+
+function updateBadges() {
+  const meta = DATA.meta || {};
+  document.getElementById('rec-badge').textContent = (meta.sku_count||0) + ' SKUs';
+  const gen = meta.generated_at ? new Date(meta.generated_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+  document.getElementById('status-badge').textContent = 'Updated ' + gen;
+}
+
+// ─── FILTER ENGINE ───────────────────────────────────────────────────────────
+function applyFilters() {
+  const selPlat = msState['ms-platform']?.selected;
+  const selCat  = msState['ms-category']?.selected;
+  const selAch  = msState['ms-ach']?.selected;
+  const selFlag = msState['ms-flag']?.selected;
+  const totPlat = msState['ms-platform']?.allItems.length || 0;
+  const totCat  = msState['ms-category']?.allItems.length || 0;
+
+  filtered = ALL_SKUS.filter(r => {
+    if (selPlat?.size > 0 && selPlat.size < totPlat && !selPlat.has(r.platform)) return false;
+    if (selCat?.size  > 0 && selCat.size  < totCat  && !selCat.has(r.category))  return false;
+    if (selAch?.size  > 0 && !selAch.has(achBucket(r.rev_ach_pct))) return false;
+    if (selFlag?.size > 0) {
+      const hasFlag = [...selFlag].some(f => r.flags && r.flags[f]);
+      if (!hasFlag) return false;
+    }
+    if (tableSearch) {
+      const q = tableSearch.toLowerCase();
+      if (!(r.short_name+r.sku+r.category+r.platform).toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
+  currentPage = 1;
+  renderActiveFilters();
+  render();
+}
+
+// ─── MULTI-SELECT ────────────────────────────────────────────────────────────
+function renderMsList(id, query) {
+  const state = msState[id];
+  if (!state) return;
+  const q = query.toLowerCase();
+  const items = state.allItems.filter(i => !q || (i.label||i.value).toLowerCase().includes(q));
+  const el = document.getElementById(id + '-list');
+  if (!el) return;
+  el.innerHTML = items.map(i => {
+    const checked = state.selected.has(i.value);
+    const label = i.label || i.value;
+    return `<div class="ms-item ${checked?'checked':''}" onclick="toggleMsItem('${id}','${i.value.replace(/'/g,"\'")}')">
+      <div class="ms-checkbox">${checked?'✓':''}</div>
+      <span class="ms-item-label">${label}</span>
+      ${i.count!=null?`<span class="ms-item-count">${i.count}</span>`:''}
+    </div>`;
+  }).join('');
+}
+function filterMsItems(inp, id) { renderMsList(id, inp.value); }
+function toggleMsItem(id, val) {
+  const s = msState[id].selected;
+  s.has(val) ? s.delete(val) : s.add(val);
+  renderMsList(id, '');
+  updateMsTrigger(id);
+  applyFilters();
+}
+function selectAll(id) { msState[id].allItems.forEach(i=>msState[id].selected.add(i.value)); renderMsList(id,''); updateMsTrigger(id); applyFilters(); }
+function clearAll(id)  { msState[id].selected.clear(); renderMsList(id,''); updateMsTrigger(id); applyFilters(); }
+function updateMsTrigger(id) {
+  const s = msState[id];
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+  const trigger = wrap.querySelector('.ms-trigger');
+  const textEl  = wrap.querySelector('.ms-trigger-text');
+  if (!trigger || !textEl) return;
+  const sel = s.selected;
+  if (sel.size === 0) {
+    trigger.classList.remove('has-selection');
+    const labels = {'ms-platform':'All Platforms','ms-category':'All Categories','ms-ach':'All','ms-flag':'All'};
+    textEl.textContent = labels[id] || 'All';
+  } else {
+    trigger.classList.add('has-selection');
+    textEl.innerHTML = `${sel.size} selected <span class="ms-count">${sel.size}</span>`;
+  }
+}
+function toggleDropdown(id) {
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+  const dropdown = wrap.querySelector('.ms-dropdown');
+  const trigger  = wrap.querySelector('.ms-trigger, .sort-trigger');
+  if (!dropdown) return;
+  const isOpen = dropdown.classList.contains('open');
+  closeAllDropdowns();
+  if (!isOpen) {
+    dropdown.classList.add('open');
+    if (trigger) trigger.classList.add('open');
+    document.getElementById('overlay')?.classList.add('open');
+  }
+}
+function closeAllDropdowns() {
+  document.querySelectorAll('.ms-dropdown.open,.sort-dropdown.open').forEach(el=>el.classList.remove('open'));
+  document.querySelectorAll('.ms-trigger.open,.sort-trigger.open').forEach(el=>el.classList.remove('open'));
+  document.getElementById('overlay')?.classList.remove('open');
+}
+function renderActiveFilters() {
+  const el = document.getElementById('active-filters');
+  if (!el) return;
+  const chips = [];
+  ['ms-platform','ms-category','ms-ach','ms-flag'].forEach(id => {
+    const s = msState[id];
+    if (!s) return;
+    s.selected.forEach(v => {
+      const label = s.allItems.find(i=>i.value===v)?.label || v;
+      chips.push(`<span class="active-chip" style="background:rgba(200,92,56,.08);border:1px solid rgba(200,92,56,.2);color:var(--terra)">
+        ${label} <span class="remove" onclick="removeChip('${id}','${v.replace(/'/g,"\'")}')">×</span>
+      </span>`);
+    });
+  });
+  el.innerHTML = chips.length
+    ? chips.join('') + `<button class="clear-all-btn" onclick="clearAllFilters()">Clear all</button>`
+    : '';
+}
+function removeChip(id, val) { msState[id].selected.delete(val); renderMsList(id,''); updateMsTrigger(id); applyFilters(); }
+function clearAllFilters() { ['ms-platform','ms-category','ms-ach','ms-flag'].forEach(id=>clearAll(id)); }
+
+// ─── VIEW ROUTER ─────────────────────────────────────────────────────────────
+function setView(v, el) {
+  currentView = v;
+  document.querySelectorAll('.view-tab').forEach(t=>t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  render();
+}
+function render() {
+  const c = document.getElementById('main-content');
+  if (!c || !DATA) return;
+  if      (currentView === 'signals')  renderSignals(c);
+  else if (currentView === 'overview') renderOverview(c);
+  else if (currentView === 'category') renderCategory(c);
+  else if (currentView === 'city')     renderCity(c);
+  else if (currentView === 'sku')      renderSKU(c);
+}
+
+// ─── SIGNALS VIEW ────────────────────────────────────────────────────────────
+function renderSignals(c) {
+  const meta    = DATA.meta || {};
+  const actions = DATA.actions || [];
+  const ft      = meta.flag_totals || {};
+  const heatmap = DATA.heatmap || [];
+
+  // Get all active platforms from heatmap
+  const platforms = [...new Set(heatmap.map(h=>h.platform))].sort();
+  const categories= [...new Set(heatmap.map(h=>h.category))].sort();
+
+  // Summary stats
+  const statsHtml = `
+    <div class="signals-grid">
+      <div class="sig-stat critical"><div class="sig-stat-val" style="color:var(--red)">${ft.critical||0}</div><div class="sig-stat-label">Critical flags — act today</div></div>
+      <div class="sig-stat warning"><div class="sig-stat-val" style="color:var(--amber)">${ft.warning||0}</div><div class="sig-stat-label">Warnings — review this week</div></div>
+      <div class="sig-stat opportunity"><div class="sig-stat-val" style="color:var(--green)">${ft.opportunity||0}</div><div class="sig-stat-label">Opportunities — scale now</div></div>
+      <div class="sig-stat neutral"><div class="sig-stat-val">${ALL_SKUS.filter(r=>r.flags?.dead_sku).length}</div><div class="sig-stat-label">Dead SKUs — zero sales</div></div>
+    </div>`;
+
+  // Action list
+  const actionsHtml = actions.slice(0,15).map((a,i) => {
+    const sev = a.severity || 'warning';
+    const impact = a.impact_rev > 0
+      ? `<div class="action-impact ${sev}">₹${Math.round(a.impact_rev).toLocaleString('en-IN')}</div>`
+      : '';
+    const skuList = a.skus?.slice(0,3).join(', ') + (a.sku_count > 3 ? ` +${a.sku_count-3} more` : '');
+    return `<div class="action-card ${sev}">
+      <div class="action-rank">${i+1}</div>
+      <div class="action-body">
+        <div class="action-title">${a.platform} — ${FLAG_LABELS[a.flag]||a.flag} (${a.sku_count} SKU${a.sku_count!==1?'s':''})</div>
+        <div class="action-detail">${a.action}<br><span style="color:var(--brown-faint)">${skuList}</span></div>
+      </div>
+      ${impact}
+    </div>`;
+  }).join('');
+
+  // Heatmap — top 15 categories by prorata rev, top 8 platforms by spend
+  const catRevMap = {};
+  heatmap.forEach(h => { catRevMap[h.category] = (catRevMap[h.category]||0) + (h.prorata_rev||0); });
+  const topCats = Object.entries(catRevMap).sort((a,b)=>b[1]-a[1]).slice(0,15).map(e=>e[0]);
+  const platRevMap = {};
+  (DATA.channels||[]).forEach(ch => { platRevMap[ch.platform] = ch.actual_rev||0; });
+  const topPlats = Object.keys(platRevMap).filter(p=>platRevMap[p]>0).sort((a,b)=>platRevMap[b]-platRevMap[a]).slice(0,8);
+
+  const hmIndex = {};
+  heatmap.forEach(h => { hmIndex[h.category+'|'+h.platform] = h.rev_ach_pct; });
+
+  const hmHeader = topPlats.map(p=>`<th title="${p}">${p.substring(0,6)}</th>`).join('');
+  const hmRows = topCats.map(cat => {
+    const cells = topPlats.map(p => {
+      const v = hmIndex[cat+'|'+p];
+      if (v == null) return `<td class="hm-none">—</td>`;
+      const cls = v >= 100 ? 'hm-good' : v >= 80 ? 'hm-ok' : 'hm-bad';
+      return `<td class="${cls}">${Math.round(v)}%</td>`;
+    }).join('');
+    return `<tr><td>${cat}</td>${cells}</tr>`;
+  }).join('');
+
+  c.innerHTML = `
+    ${statsHtml}
+    <div class="section-title">Today's top actions — ranked by revenue impact</div>
+    <div class="action-list">${actionsHtml}</div>
+    <div class="section-title">Category × platform — achievement heatmap</div>
+    <div class="heatmap-wrap">
+      <div class="heatmap-scroll">
+        <table class="heatmap-table">
+          <thead><tr><th>Category</th>${hmHeader}</tr></thead>
+          <tbody>${hmRows}</tbody>
+        </table>
+      </div>
+      <div style="padding:8px 16px;font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;border-top:1px solid var(--border)">
+        Red row = systemic across all channels &nbsp;·&nbsp; Red in one column = platform-specific
+      </div>
+    </div>`;
+}
+
+// ─── OVERVIEW ────────────────────────────────────────────────────────────────
+function renderOverview(c) {
+  const channels = DATA.channels || [];
+  const src = filtered.length < ALL_SKUS.length ? filtered : ALL_SKUS;
+
+  const totProRev = src.reduce((s,r)=>s+(r.prorata_rev||0),0);
+  const totActRev = src.reduce((s,r)=>s+(r.mtd_actual_rev||0),0);
+  const totProQty = src.reduce((s,r)=>s+(r.prorata_qty||0),0);
+  const totActQty = src.reduce((s,r)=>s+(r.mtd_actual_qty||0),0);
+  const totLmRev  = src.reduce((s,r)=>s+(r.lm_rev||0),0);
+  const revAch    = totProRev>0 ? totActRev/totProRev*100 : 0;
+  const qtyAch    = totProQty>0 ? totActQty/totProQty*100 : 0;
+  const vsLm      = totLmRev>0 ? totActRev/totLmRev*100 : null;
+  const activeSKUs= src.filter(r=>(r.mtd_actual_rev||0)>0).length;
+
+  const summaryCards = [
+    {label:'Total Revenue',    val:fmt(totActRev),     ach:revAch,  sub:'Pro-rata: '+fmt(totProRev)},
+    {label:'Pro-rata Plan',    val:fmt(totProRev),     ach:null,    sub:'Full plan: '+fmt(src.reduce((s,r)=>s+(r.planned_rev||0),0))},
+    {label:'Actual Volume',    val:fmtQ(totActQty),    ach:qtyAch,  sub:'Pro-rata: '+fmtQ(totProQty)},
+    {label:'vs Last Month',    val:vsLm?fmtPct(vsLm):'—', ach:null, sub:'LM: '+fmt(totLmRev)},
+    {label:'Active SKUs',      val:activeSKUs+'',      ach:null,    sub:'of '+src.length+' total'},
+    {label:'Critical Flags',   val:(DATA.meta?.flag_totals?.critical||0)+'', ach:null, sub:'act today'},
+  ].map(card => {
+    const achHtml = card.ach != null
+      ? `<div class="card-sub"><span class="card-ach" style="color:${achColor(card.ach)}">${fmtPct(card.ach)}</span><span class="card-plan">of pro-rata</span></div>
+         <div class="ach-bar"><div class="ach-bar-fill" style="width:${Math.min(card.ach,100)}%;background:${achColor(card.ach)}"></div></div>`
+      : `<div class="card-sub"><span class="card-plan">${card.sub}</span></div>`;
+    return `<div class="summary-card"><div class="card-label">${card.label}</div><div class="card-value">${card.val}</div>${achHtml}</div>`;
+  }).join('');
+
+  // Channel cards — use DATA.channels for full data, filter by active filters
+  const selPlat = msState['ms-platform']?.selected;
+  const totPlat = msState['ms-platform']?.allItems.length || 0;
+  const chFiltered = selPlat?.size > 0 && selPlat.size < totPlat
+    ? channels.filter(ch=>selPlat.has(ch.platform))
+    : channels;
+
+  const chCards = chFiltered.map(ch => renderChannelCard(ch)).join('');
+
+  c.innerHTML = `
+    <div class="summary-grid">${summaryCards}</div>
+    <div class="section-title">Platform Performance</div>
+    <div class="channel-grid">${chCards}</div>`;
+}
+
+function renderChannelCard(ch) {
+  const color  = chColor(ch.platform);
+  const ach    = ch.rev_ach_pct || 0;
+  const fc     = ch.flag_counts || {};
+  const dots   = [
+    ...Array(Math.min(fc.critical||0, 5)).fill('<div class="flag-dot critical"></div>'),
+    ...Array(Math.min(fc.warning||0, 3)).fill('<div class="flag-dot warning"></div>'),
+    ...Array(Math.min(fc.opportunity||0, 3)).fill('<div class="flag-dot opportunity"></div>'),
+  ].join('');
+  const vsLm = ch.lm_rev > 0 ? ch.actual_rev/ch.lm_rev*100 : null;
+  const safe = s => (s||'').replace(/'/g,"\'");
+  return `<div class="channel-card" onclick="drillChannel('${safe(ch.platform)}')">
+    <button class="ch-intel-btn" title="Channel Intelligence" onclick="event.stopPropagation();openIntelModal('${safe(ch.platform)}')">i</button>
+    <div class="ch-header" style="padding-right:28px">
+      <div class="ch-name" style="color:${color}">${ch.platform}</div>
+      <div class="ch-date">${ch.sku_count} SKUs · ${ch.active_sku_count} active</div>
+    </div>
+    <div class="ch-metrics">
+      <div>
+        <div class="ch-metric-label">Actual</div>
+        <div class="ch-metric-val">${fmt(ch.actual_rev)}</div>
+        <div class="ch-metric-sub">Plan: ${fmt(ch.prorata_rev)}</div>
+      </div>
+      <div>
+        <div class="ch-metric-label">Achievement</div>
+        <div class="ch-metric-val" style="color:${achColor(ach)}">${fmtPct(ach)}</div>
+        <div class="ch-metric-sub">Pro-rata</div>
+      </div>
+      <div>
+        <div class="ch-metric-label">vs LM</div>
+        <div class="ch-metric-val" style="color:${vsLm==null?'var(--muted)':vsLm>=100?'var(--green)':'var(--red)'}">
+          ${vsLm!=null?fmtPct(vsLm):'—'}
+        </div>
+        <div class="ch-metric-sub">LM: ${fmt(ch.lm_rev)}</div>
+      </div>
+    </div>
+    <div class="ch-bar"><div class="ch-bar-fill" style="width:${Math.min(ach,100)}%;background:${achColor(ach)}"></div></div>
+    ${ch.top_signal ? `<div class="ch-signal">${ch.top_signal}</div>` : ''}
+    ${dots ? `<div class="ch-flag-dots">${dots}</div>` : ''}
+  </div>`;
+}
+
+function drillChannel(platform) {
+  msState['ms-platform'].selected.clear();
+  msState['ms-platform'].selected.add(platform);
+  updateMsTrigger('ms-platform');
+  renderMsList('ms-platform','');
+  setView('category', document.querySelector('[data-view="category"]'));
+  applyFilters();
+}
+
+// ─── CATEGORY VIEW ───────────────────────────────────────────────────────────
+let catSort = {key:'rev_delta', dir:'desc'};
+function renderCategory(c) {
+  const catMap = {};
+  filtered.forEach(r => {
+    const k = r.category || 'Unknown';
+    if (!catMap[k]) catMap[k] = {name:k, proRev:0, actRev:0, lmRev:0, l3mRev:0, proQty:0, actQty:0, skuCount:0};
+    const m = catMap[k];
+    m.proRev   += r.prorata_rev || 0;
+    m.actRev   += r.mtd_actual_rev || 0;
+    m.lmRev    += r.lm_rev || 0;
+    m.l3mRev   += (r.l3m_rev||0)/3;
+    m.proQty   += r.prorata_qty || 0;
+    m.actQty   += r.mtd_actual_qty || 0;
+    m.skuCount += 1;
+  });
+  let cats = Object.values(catMap).map(m => ({
+    ...m,
+    ach:   m.proRev > 0 ? m.actRev/m.proRev*100 : 0,
+    delta: m.actRev - m.proRev,
+  }));
+
+  const sortKeys = [
+    {key:'delta',   label:'Delta'},
+    {key:'actRev',  label:'Actual Rev'},
+    {key:'ach',     label:'Achievement'},
+    {key:'proRev',  label:'Pro-rata'},
+    {key:'lmRev',   label:'vs LM'},
+  ];
+  cats.sort((a,b) => catSort.dir==='desc' ? b[catSort.key]-a[catSort.key] : a[catSort.key]-b[catSort.key]);
+
+  const sortBtns = sortKeys.map(s =>
+    `<button class="cat-sort-btn ${catSort.key===s.key?'active':''}" onclick="setCatSort('${s.key}')">
+      ${s.label}${catSort.key===s.key?(catSort.dir==='desc'?' ↓':' ↑'):''}
+    </button>`
+  ).join('');
+
+  const rows = cats.map(m => {
+    const maxActRev = Math.max(...cats.map(x=>x.actRev), 1);
+    const barW = (m.actRev/maxActRev*100).toFixed(1);
+    const vsLm  = m.lmRev > 0 ? m.actRev/m.lmRev*100 : null;
+    const vsL3m = m.l3mRev > 0 ? m.actRev/m.l3mRev*100 : null;
+    return `<div class="cat-row" onclick="drillCat('${m.name.replace(/'/g,"\'")}')">
+      <div class="cat-row-header">
+        <span class="cat-row-name">${m.name}</span>
+        <span class="ach-pill ${achClass(m.ach)}">${fmtPct(m.ach)}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${m.delta>=0?'var(--green)':'var(--red)'}">${m.delta>=0?'+':''}${fmt(m.delta)}</span>
+        <div class="mini-bar-wrap"><div class="mini-bar"><div class="mini-bar-fill" style="width:${barW}%;background:${achColor(m.ach)}"></div></div></div>
+      </div>
+      <div class="cat-nums">
+        <div class="cat-num"><span class="cat-num-val">${fmt(m.actRev)}</span><span class="cat-num-label">Actual</span></div>
+        <div class="cat-num"><span class="cat-num-val">${fmt(m.proRev)}</span><span class="cat-num-label">Pro-rata</span></div>
+        <div class="cat-num"><span class="cat-num-val">${fmt(m.lmRev)}</span><span class="cat-num-label">LM</span></div>
+        <div class="cat-num"><span class="cat-num-val" style="color:${vsLm==null?'var(--muted)':vsLm>=100?'var(--green)':'var(--red)'}">
+          ${vsLm!=null?fmtPct(vsLm):'—'}</span><span class="cat-num-label">vs LM</span></div>
+        <div class="cat-num"><span class="cat-num-val">${m.skuCount}</span><span class="cat-num-label">SKUs</span></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  c.innerHTML = `
+    <div class="table-section">
+      <div class="table-header"><span class="table-title">Category Performance</span></div>
+      <div class="cat-sort-bar">${sortBtns}</div>
+      <div style="padding:12px 16px">${rows || '<div class="no-data">No data</div>'}</div>
+    </div>`;
+}
+function setCatSort(key) {
+  if (catSort.key===key) catSort.dir = catSort.dir==='desc'?'asc':'desc';
+  else { catSort.key=key; catSort.dir='desc'; }
+  renderCategory(document.getElementById('main-content'));
+}
+function drillCat(cat) {
+  msState['ms-category'].selected.clear();
+  msState['ms-category'].selected.add(cat);
+  updateMsTrigger('ms-category');
+  renderMsList('ms-category','');
+  setView('sku', document.querySelector('[data-view="sku"]'));
+  applyFilters();
+}
+
+// ─── CITY VIEW ───────────────────────────────────────────────────────────────
+const cityCollapsed = {};
+const cityShowAll   = {};
+const citySortState = {};
+
+function renderCity(c) {
+  const selPlat = msState['ms-platform']?.selected;
+  const totPlat = msState['ms-platform']?.allItems.length || 0;
+  const selCat  = msState['ms-category']?.selected;
+  const totCat  = msState['ms-category']?.allItems.length || 0;
+
+  let cityData = DATA.city || [];
+  if (selPlat?.size > 0 && selPlat.size < totPlat) cityData = cityData.filter(r=>selPlat.has(r.platform));
+  if (selCat?.size  > 0 && selCat.size  < totCat)  cityData = cityData.filter(r=>selCat.has(r.category));
+
+  const byPlatform = {};
+  cityData.forEach(r => {
+    if (!byPlatform[r.platform]) byPlatform[r.platform] = {};
+    const k = r.city;
+    if (!byPlatform[r.platform][k]) byPlatform[r.platform][k] = {city:k, mtd:0, lm:0, l3m:0, skus:new Set()};
+    const m = byPlatform[r.platform][k];
+    m.mtd += r.mtd_qty || 0;
+    m.lm  += r.lm_qty  || 0;
+    m.l3m += r.l3m_qty || 0;
+    m.skus.add(r.sku);
+  });
+
+  const platforms = Object.keys(byPlatform).sort();
+  if (!platforms.length) {
+    c.innerHTML = '<div class="no-data">No city data for selected filters.</div>';
+    return;
+  }
+
+  const cards = platforms.map(plat => {
+    const cities = Object.values(byPlatform[plat]).map(m=>({...m, skuCount:m.skus.size}));
+    const ss = citySortState[plat] || {key:'mtd',dir:'desc'};
+    cities.sort((a,b)=>ss.dir==='desc'?b[ss.key]-a[ss.key]:a[ss.key]-b[ss.key]);
+
+    const maxMtd = Math.max(...cities.map(r=>r.mtd),1);
+    const showAll = cityShowAll[plat];
+    const PREVIEW = 12;
+    const display = showAll ? cities : cities.slice(0, PREVIEW);
+    const collapsed = cityCollapsed[plat] !== false;
+    const color = chColor(plat);
+    const tot = cities.reduce((s,r)=>({mtd:s.mtd+r.mtd, lm:s.lm+r.lm, l3m:s.l3m+r.l3m}), {mtd:0,lm:0,l3m:0});
+    const totVsLm = tot.lm > 0 ? tot.mtd/tot.lm*100 : null;
+
+    const sortBtns = ['mtd','lm','l3m'].map(k =>
+      `<button class="city-sort-mini-btn ${ss.key===k?'active':''}" onclick="event.stopPropagation();setCitySort('${plat}','${k}')">
+        ${k.toUpperCase()}${ss.key===k?(ss.dir==='desc'?' ↓':' ↑'):''}
+      </button>`).join('');
+
+    const rows = display.map(r => {
+      const barW = (r.mtd/maxMtd*100).toFixed(1);
+      const vsLm = r.lm > 0 ? r.mtd/r.lm*100 : null;
+      return `<tr>
+        <td>${r.city}</td>
+        <td><div class="city-bar-outer"><div class="city-bar-inner" style="width:${barW}%;background:${color}"></div></div></td>
+        <td>${fmtQ(r.mtd)}</td>
+        <td>${fmtQ(r.lm)}</td>
+        <td style="color:${vsLm==null?'var(--muted)':vsLm>=100?'var(--green)':'var(--red)'}">
+          ${vsLm!=null?fmtPct(vsLm):'—'}
+        </td>
+        <td>${r.skuCount}</td>
+      </tr>`;
+    }).join('');
+
+    const totalRow = `<tr style="background:var(--cream-mid);font-weight:700;border-top:2px solid var(--parchment)">
+      <td>TOTAL (${cities.length})</td><td></td>
+      <td>${fmtQ(tot.mtd)}</td><td>${fmtQ(tot.lm)}</td>
+      <td style="color:${totVsLm==null?'var(--muted)':totVsLm>=100?'var(--green)':'var(--red)'}">
+        ${totVsLm!=null?fmtPct(totVsLm):'—'}
+      </td><td></td>
+    </tr>`;
+
+    return `<div class="city-platform-card">
+      <div class="city-platform-header" onclick="toggleCityCard('${plat}')">
+        <div>
+          <div class="city-platform-title" style="color:${color}">${plat}</div>
+          <div style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px">
+            ${cities.length} cities · Actual: <strong>${fmtQ(tot.mtd)}</strong>
+            · vs LM: <span style="color:${totVsLm==null?'var(--muted)':totVsLm>=100?'var(--green)':'var(--red)'}">${totVsLm!=null?fmtPct(totVsLm):'—'}</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:4px;align-items:center">
+          ${sortBtns}
+          <span style="font-size:16px;color:var(--muted);margin-left:8px">${collapsed?'▶':'▼'}</span>
+        </div>
+      </div>
+      <div id="city-body-${plat.replace(/ /g,'_')}" style="display:${collapsed?'none':'block'}">
+        <div style="overflow-x:auto">
+          <table class="city-table">
+            <thead><tr><th>City</th><th>Bar</th><th>MTD Qty</th><th>LM Qty</th><th>vs LM</th><th>SKUs</th></tr></thead>
+            <tbody>${rows}${totalRow}</tbody>
+          </table>
+        </div>
+        ${cities.length>PREVIEW?`<button class="city-show-btn" onclick="toggleCityShowAll('${plat}')">${showAll?'▲ Show less':'▼ Show all '+cities.length+' cities'}</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  c.innerHTML = cards;
+}
+function toggleCityCard(plat) {
+  cityCollapsed[plat] = !cityCollapsed[plat];
+  renderCity(document.getElementById('main-content'));
+}
+function toggleCityShowAll(plat) {
+  cityShowAll[plat] = !cityShowAll[plat];
+  renderCity(document.getElementById('main-content'));
+}
+function setCitySort(plat, key) {
+  if (!citySortState[plat]) citySortState[plat] = {key:'mtd',dir:'desc'};
+  const ss = citySortState[plat];
+  if (ss.key===key) ss.dir = ss.dir==='desc'?'asc':'desc';
+  else { ss.key=key; ss.dir='desc'; }
+  renderCity(document.getElementById('main-content'));
+}
+
+// ─── SKU TABLE ───────────────────────────────────────────────────────────────
+function renderSKU(c) {
+  const sorted = [...filtered].sort((a,b) => {
+    const va = a[sortKey] ?? -Infinity;
+    const vb = b[sortKey] ?? -Infinity;
+    return sortDir==='desc' ? vb-va : va-vb;
+  });
+
+  const totalPages = Math.ceil(sorted.length / PAGE_SIZE);
+  const page = sorted.slice((currentPage-1)*PAGE_SIZE, currentPage*PAGE_SIZE);
+
+  const cols = [
+    {key:'platform',      label:'Platform',    right:false},
+    {key:'short_name',    label:'SKU',         right:false},
+    {key:'category',      label:'Category',    right:false},
+    {key:'prorata_rev',   label:'Pro-rata',    right:true},
+    {key:'mtd_actual_rev',label:'Actual',      right:true},
+    {key:'rev_ach_pct',   label:'Ach%',        right:true},
+    {key:'rev_delta',     label:'Delta',       right:true},
+    {key:'roas',          label:'ROAS',        right:true},
+    {key:'tacos',         label:'TACoS%',      right:true},
+    {key:'mom_rev_trend', label:'MoM%',        right:true},
+    {key:'top_flag',      label:'Flag',        right:false},
+  ];
+
+  const thHtml = cols.map(col => {
+    const isActive = sortKey === col.key;
+    const arrow = isActive ? (sortDir==='asc'?'↑':'↓') : '↕';
+    return `<th class="${isActive?'sort-active':''}" onclick="clickColSort('${col.key}')">
+      <div class="th-inner">${col.label} <span class="sort-arrow">${arrow}</span></div>
+    </th>`;
+  }).join('');
+
+  const rows = page.map(r => {
+    const color   = chColor(r.platform);
+    const delta   = (r.mtd_actual_rev||0) - (r.prorata_rev||0);
+    const tf      = r.top_flag;
+    const tfSev   = tf ? (FLAG_SEV[Object.keys(FLAG_SEV).find(k=>FLAG_LABELS[k]===tf)||''] || 'warning') : null;
+    const flagHtml= tf ? `<span class="flag-pill fp-${tfSev}">${tf}</span>` : '';
+
+    // Traffic dot: roas trend
+    let dotColor = 'grey';
+    if (r.roas != null && r.lfm_roas != null && r.lfm_roas > 0) {
+      const drop = (r.lfm_roas - r.roas) / r.lfm_roas * 100;
+      dotColor = drop < 10 ? 'green' : drop < 30 ? 'amber' : 'red';
+    } else if (r.roas != null) {
+      dotColor = r.roas >= 2 ? 'green' : r.roas >= 1 ? 'amber' : 'red';
+    }
+    const dot = r.roas != null ? `<span class="perf-dot ${dotColor}" title="ROAS vs LFM"></span>` : '';
+
+    return `<tr>
+      <td><span class="channel-tag" style="background:${color}22;color:${color}">${r.platform}</span></td>
+      <td>${dot}<span class="sku-tag" title="${r.sku}">${r.short_name||r.sku}</span></td>
+      <td><span class="cat-tag">${r.category}</span></td>
+      <td class="num">${fmt(r.prorata_rev)}</td>
+      <td class="num">${fmt(r.mtd_actual_rev)}</td>
+      <td><span class="ach-pill ${achClass(r.rev_ach_pct)}">${fmtPct(r.rev_ach_pct)}</span></td>
+      <td class="num" style="color:${delta>=0?'var(--green)':'var(--red)'}; font-weight:600">${delta>=0?'+':''}${fmt(delta)}</td>
+      <td class="num">${r.roas!=null?fmtX(r.roas):'—'}</td>
+      <td class="num">${r.tacos!=null?fmtPct(r.tacos):'—'}</td>
+      <td class="num" style="color:${r.mom_rev_trend==null?'var(--muted)':r.mom_rev_trend>=100?'var(--green)':'var(--red)'}">
+        ${r.mom_rev_trend!=null?fmtPct(r.mom_rev_trend):'—'}
+      </td>
+      <td>${flagHtml}</td>
+    </tr>`;
+  }).join('');
+
+  // Grand total
+  const tot = {
+    proRev: filtered.reduce((s,r)=>s+(r.prorata_rev||0),0),
+    actRev: filtered.reduce((s,r)=>s+(r.mtd_actual_rev||0),0),
+  };
+  const totAch = tot.proRev > 0 ? tot.actRev/tot.proRev*100 : 0;
+  const totDelta = tot.actRev - tot.proRev;
+  const totalRow = `<tr style="background:var(--cream-mid);font-weight:700;border-top:2px solid var(--terra-light)">
+    <td colspan="3" style="text-align:left;color:var(--terra);font-family:'JetBrains Mono',monospace;font-size:10px">TOTAL (${filtered.length})</td>
+    <td class="num">${fmt(tot.proRev)}</td>
+    <td class="num">${fmt(tot.actRev)}</td>
+    <td><span class="ach-pill ${achClass(totAch)}">${fmtPct(totAch)}</span></td>
+    <td class="num" style="color:${totDelta>=0?'var(--green)':'var(--red)'};font-weight:700">${totDelta>=0?'+':''}${fmt(totDelta)}</td>
+    <td colspan="4"></td>
+  </tr>`;
+
+  // Pagination
+  let btns='', sp=Math.max(1,currentPage-3), ep=Math.min(totalPages,sp+6);
+  if (ep-sp<6) sp=Math.max(1,ep-6);
+  for(let i=sp;i<=ep;i++) btns+=`<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  const pagHtml = `<div class="pagination">
+    <span>Showing ${(currentPage-1)*PAGE_SIZE+1}–${Math.min(currentPage*PAGE_SIZE,filtered.length)} of ${filtered.length}</span>
+    <div class="page-btns">
+      <button class="page-btn" onclick="goPage(1)" ${currentPage===1?'disabled':''}>«</button>
+      <button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>
+      ${btns}
+      <button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>›</button>
+      <button class="page-btn" onclick="goPage(${totalPages})" ${currentPage===totalPages?'disabled':''}>»</button>
+    </div>
+  </div>`;
+
+  c.innerHTML = `<div class="table-section">
+    <div class="table-header">
+      <span class="table-title">SKU Table</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace">${filtered.length} rows</span>
+        <input class="table-search" placeholder="Search SKU, category…" value="${tableSearch}"
+               oninput="onTableSearch(this.value)" id="table-search">
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>${thHtml}</tr></thead>
+        <tbody>${rows||'<tr><td colspan="11" class="no-data">No matching records</td></tr>'}${totalRow}</tbody>
+      </table>
+    </div>
+    ${pagHtml}
+  </div>`;
+}
+function onTableSearch(val) { tableSearch = val.toLowerCase(); applyFilters(); setTimeout(()=>document.getElementById('table-search')?.focus(),0); }
+function clickColSort(key) {
+  if (sortKey===key) sortDir=sortDir==='asc'?'desc':'asc';
+  else { sortKey=key; sortDir='desc'; }
+  renderSKU(document.getElementById('main-content'));
+}
+function goPage(p) { currentPage=p; renderSKU(document.getElementById('main-content')); }
+
+// ─── INTEL MODAL ─────────────────────────────────────────────────────────────
+function openIntelModal(platform) {
+  const chRows = ALL_SKUS.filter(r=>r.platform===platform);
+  if (!chRows.length) return;
+
+  const ch = (DATA.channels||[]).find(c=>c.platform===platform) || {};
+  const ach = ch.rev_ach_pct || 0;
+  const achCls = ach>=100?'ach-good':ach>=80?'ach-mid':'ach-ok';
+
+  document.getElementById('intel-platform-name').textContent = platform;
+  document.getElementById('intel-header-pills').innerHTML = `
+    <span class="intel-meta-pill ${achCls}">Ach: ${fmtPct(ach)}</span>
+    <span class="intel-meta-pill">Actual: ${fmt(ch.actual_rev)}</span>
+    <span class="intel-meta-pill">Pro-rata: ${fmt(ch.prorata_rev)}</span>
+    ${(ch.flag_counts?.critical||0)>0 ? `<span class="intel-meta-pill ach-ok">⚠ ${ch.flag_counts.critical} critical</span>` : ''}`;
+
+  // Lows and highs by category
+  const catMap = {};
+  chRows.forEach(r => {
+    const k = r.category||'Unknown';
+    if (!catMap[k]) catMap[k]={name:k,proRev:0,actRev:0,lmRev:0,l3mRev:0,skus:[]};
+    const m=catMap[k];
+    m.proRev+=r.prorata_rev||0; m.actRev+=r.mtd_actual_rev||0;
+    m.lmRev+=r.lm_rev||0; m.l3mRev+=(r.l3m_rev||0)/3;
+    m.skus.push(r);
+  });
+  const cats = Object.values(catMap).map(m=>({...m,ach:m.proRev>0?m.actRev/m.proRev*100:0,delta:m.actRev-m.proRev}));
+  const minPro = (ch.prorata_rev||0) * 0.02;
+  const lows  = cats.filter(m=>m.delta<0  && m.ach<98  && m.proRev>minPro).sort((a,b)=>a.delta-b.delta).slice(0,8);
+  const highs = cats.filter(m=>m.delta>=0 && m.ach>103 && m.proRev>minPro).sort((a,b)=>b.delta-a.delta).slice(0,8);
+
+  function catBlock(m, isLow) {
+    const skuRows = [...m.skus]
+      .map(r=>({name:r.short_name||r.sku, ach:r.prorata_rev>0?r.mtd_actual_rev/r.prorata_rev*100:0, delta:(r.mtd_actual_rev||0)-(r.prorata_rev||0)}))
+      .filter(s=>Math.abs(s.delta)>0)
+      .sort((a,b)=>isLow?a.delta-b.delta:b.delta-a.delta)
+      .slice(0,6)
+      .map(s=>`<div class="intel-sku-row">
+        <span class="intel-sku-name">${s.name}</span>
+        <span class="intel-sku-ach ${achClass(s.ach)}">${fmtPct(s.ach)}</span>
+        <span class="intel-sku-delta" style="color:${s.delta>=0?'var(--green)':'var(--red)'}">${s.delta>=0?'+':''}${fmt(s.delta)}</span>
+      </div>`).join('');
+    const id = 'icat-'+Math.random().toString(36).slice(2);
+    return `<div class="intel-cat-block">
+      <div class="intel-cat-header" onclick="document.getElementById('${id}').classList.toggle('open');this.querySelector('.intel-sku-list')||null">
+        <span class="intel-cat-name">${m.name}</span>
+        <span class="intel-cat-ach ${achClass(m.ach)}">${fmtPct(m.ach)}</span>
+        <span class="intel-cat-delta ${m.delta>=0?'pos':'neg'}">${m.delta>=0?'+':''}${fmt(m.delta)}</span>
+        <span style="font-size:10px;color:var(--muted)">▾</span>
+      </div>
+      <div class="intel-action">
+        <span class="intel-action-icon">${isLow?'🔍':'🚀'}</span>
+        <span class="intel-action-text">${isLow?'Check performance funnel — traffic, CVR, visibility':'Opportunity — push further, raise bids, protect inventory'}</span>
+      </div>
+      <div class="intel-sku-list open" id="${id}">${skuRows}</div>
+    </div>`;
+  }
+
+  document.getElementById('intel-lows-count').textContent = lows.length;
+  document.getElementById('intel-highs-count').textContent = highs.length;
+  document.getElementById('intel-lows-body').innerHTML = lows.length
+    ? lows.map(m=>catBlock(m,true)).join('')
+    : '<div class="intel-empty">✅ No significant underperformers</div>';
+  document.getElementById('intel-highs-body').innerHTML = highs.length
+    ? highs.map(m=>catBlock(m,false)).join('')
+    : '<div class="intel-empty">— No categories significantly outperforming</div>';
+
+  // Benchmark strip
+  const bm = DATA.meta?.platform_benchmarks?.[platform];
+  document.getElementById('intel-benchmark-strip').innerHTML = bm
+    ? `<span class="bench-item">Median ROAS: <strong>${bm.median_roas}×</strong></span>
+       <span class="bench-item">Median TACoS: <strong>${bm.median_tacos}%</strong></span>
+       <span class="bench-item">Median CVR: <strong>${bm.median_cvr}%</strong></span>`
+    : '';
+
+  const totDelta = (ch.actual_rev||0)-(ch.prorata_rev||0);
+  document.getElementById('intel-footer').innerHTML = `
+    <span class="intel-footer-stat">Channel delta: <strong style="color:${totDelta>=0?'var(--green)':'var(--red)'}">${totDelta>=0?'+':''}${fmt(totDelta)}</strong></span>
+    <span class="intel-footer-stat">vs LM: <strong>${ch.lm_rev>0?fmtPct((ch.actual_rev||0)/ch.lm_rev*100):'—'}</strong></span>
+    <span class="intel-footer-stat" style="margin-left:auto;font-size:8.5px;opacity:.7">${ch.flag_counts?.critical||0} critical · ${ch.flag_counts?.warning||0} warnings · ${ch.flag_counts?.opportunity||0} opportunities</span>`;
+
+  document.getElementById('intel-meta-bar').innerHTML = `
+    <span class="intel-meta-note">Ad spend (MTD):</span>
+    <span class="intel-meta-pill">${fmt(ch.total_ad_spend||0)}</span>
+    <span class="intel-meta-note">Active SKUs:</span>
+    <span class="intel-meta-pill">${ch.active_sku_count||0} / ${ch.sku_count||0}</span>`;
+
+  document.getElementById('intel-overlay').classList.add('open');
+}
+function closeIntelModal(e) {
+  if (e && e.target !== document.getElementById('intel-overlay')) return;
+  document.getElementById('intel-overlay').classList.remove('open');
+}
+function closeCityModal(e) {
+  if (!e || e.target===document.getElementById('city-modal-bg'))
+    document.getElementById('city-modal-bg').classList.remove('open');
+}
+
+// ─── BOOT ────────────────────────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
