@@ -1147,94 +1147,107 @@ function derivePerfMetrics(row) {
 
 // ─── LOAD FROM JSON ───────────────────────────────────────────────────────────
 async function loadData() {
+  // Short key map (matches process.py slim_sku output)
+  // p=platform sk=sku n=short_name c=category d=date pr=pro_ratio
+  // pR=planned_rev pQ=planned_qty xR=prorata_rev xQ=prorata_qty
+  // aR=actual_rev aQ=actual_qty lR=lm_rev lQ=lm_qty 3R=l3m_rev 3Q=l3m_qty
+  // gU=gross_units gS=gross_sales aS=ad_spend aI=ad_impressions
+  // aC=ad_clicks aU=ad_units aX=ad_sales fU=lfm_gross_units lf=lfm_roas
+  // tf=top_flag fs=flags
   try {
-    const [idxRes, aRes, bRes, cityRes] = await Promise.all([
+    const [idxRes, skuRes, cityRes] = await Promise.all([
       fetch('output/index.json'),
-      fetch('output/skus_a.json'),
-      fetch('output/skus_b.json'),
+      fetch('output/skus.json'),
       fetch('output/city.json'),
     ]);
-    if (!idxRes.ok)  throw new Error('index.json: ' + idxRes.status);
-    if (!aRes.ok)    throw new Error('skus_a.json: ' + aRes.status);
-    if (!bRes.ok)    throw new Error('skus_b.json: ' + bRes.status);
-    if (!cityRes.ok) throw new Error('city.json: '   + cityRes.status);
+    if (!idxRes.ok)  throw new Error('index.json HTTP ' + idxRes.status);
+    if (!skuRes.ok)  throw new Error('skus.json HTTP '  + skuRes.status);
+    if (!cityRes.ok) throw new Error('city.json HTTP '  + cityRes.status);
 
-    const [idx, skusA, skusB, cityData] = await Promise.all([
-      idxRes.json(), aRes.json(), bRes.json(), cityRes.json()
+    const [idx, skuData, cityData] = await Promise.all([
+      idxRes.json(), skuRes.json(), cityRes.json()
     ]);
 
-    // Map processed.json SKU format → ALL_DATA format the rest of the code expects
-    const allSkus = [...(skusA.skus || []), ...(skusB.skus || [])];
+    const allSkus = skuData.skus || [];
 
-    ALL_DATA = allSkus.map(r => ({
-      Channel:                  r.platform,
-      SKU:                      r.short_name || r.sku,
-      SKU_CODE:                 r.sku,
-      Category:                 r.category,
-      Planned_Revenue:          r.planned_rev || 0,
-      Planned_Qty:              r.planned_qty || 0,
-      Prorata_Planned_Revenue:  r.prorata_rev || 0,
-      Prorata_Planned_Qty:      r.prorata_qty || 0,
-      Actual_Revenue:           r.mtd_actual_rev || 0,
-      Actual_Qty:               r.mtd_actual_qty || 0,
-      LM_Revenue:               r.lm_rev || 0,
-      LM_Qty:                   r.lm_qty || 0,
-      L3M_Revenue:              r.l3m_rev || 0,
-      L3M_Qty:                  r.l3m_qty || 0,
-      Disc_Pct:                 r.disc_pct || 0,
-      Rev_Ach_Pct:              r.rev_ach_pct || 0,
-      Qty_Ach_Pct:              r.qty_ach_pct || 0,
-      Rev_Delta:                r.rev_delta || 0,
-      _proRatio:                r.pro_ratio || 1,
-      _flags:                   r.flags || {},
-      _topFlag:                 r.top_flag || null,
-      'Actual Sales Updated Till': r.mtd_date || 'N/A',
-    })).filter(r => r.Channel && r.SKU);
+    // Expand short keys → ALL_DATA format the existing rendering code expects
+    ALL_DATA = allSkus.map(r => {
+      const proR = r.xR || 0;
+      const proQ = r.xQ || 0;
+      const actR = r.aR || 0;
+      const actQ = r.aQ || 0;
+      const lmR  = r.lR || 0;
+      const pr   = r.pr || 1;
+      return {
+        Channel:                  r.p,
+        SKU:                      r.n || r.sk,
+        SKU_CODE:                 r.sk,
+        Category:                 r.c,
+        Planned_Revenue:          r.pR || 0,
+        Planned_Qty:              r.pQ || 0,
+        Prorata_Planned_Revenue:  proR,
+        Prorata_Planned_Qty:      proQ,
+        Actual_Revenue:           actR,
+        Actual_Qty:               actQ,
+        LM_Revenue:               lmR,
+        LM_Qty:                   r.lQ || 0,
+        L3M_Revenue:              r['3R'] || 0,
+        L3M_Qty:                  r['3Q'] || 0,
+        Rev_Ach_Pct:              proR > 0 ? actR / proR * 100 : 0,
+        Qty_Ach_Pct:              proQ > 0 ? actQ / proQ * 100 : 0,
+        Rev_Delta:                actR - proR,
+        Disc_Pct:                 0,
+        _proRatio:                pr,
+        _topFlag:                 r.tf || null,
+        _flags:                   r.fs || {},
+        'Actual Sales Updated Till': r.d || 'N/A',
+      };
+    }).filter(r => r.Channel && r.SKU);
 
     CITY_DATA = (cityData.city || []).map(r => ({
-      Channel:        r.platform,
-      City:           r.city,
-      SKU_CODE:       r.sku,
-      SKU:            r.short_name || r.sku,
-      Category:       r.category,
-      Actual_Revenue: r.mtd_qty || 0,
-      Actual_Qty:     r.mtd_qty || 0,
-      LM_Revenue:     r.lm_qty  || 0,
-      LM_Qty:         r.lm_qty  || 0,
-      L3M_Revenue:    r.l3m_qty || 0,
-      L3M_Qty:        r.l3m_qty || 0,
+      Channel:        r.p,
+      City:           r.c,
+      SKU_CODE:       r.s,
+      SKU:            r.n || r.s,
+      Category:       r.g,
+      Actual_Revenue: r.a || 0,
+      Actual_Qty:     r.a || 0,
+      LM_Revenue:     r.l || 0,
+      LM_Qty:         r.l || 0,
+      L3M_Revenue:    r['3'] || 0,
+      L3M_Qty:        r['3'] || 0,
     })).filter(r => r.Channel && r.City && r.SKU_CODE);
 
-    // Build PERF_DATA from ad metrics on each SKU row (MTD + synthetic LFM)
+    // Rebuild PERF_DATA from ad fields in each SKU row
     PERF_DATA = [];
     allSkus.forEach(r => {
-      if (r.ad_spend == null && r.gross_units == null) return;
+      if (r.aS == null && r.gU == null) return;
       PERF_DATA.push({
-        Platform:      r.platform,
+        Platform:      r.p,
         Time:          'MTD',
-        SKU_CODE:      r.sku,
-        Short_Name:    r.short_name || r.sku,
-        Category:      r.category,
-        GrossClicks:   r.ad_clicks || 0,
-        GrossUnits:    r.gross_units || 0,
-        GrossSales:    r.gross_sales || 0,
-        AdSpend:       r.ad_spend || 0,
-        AdImpressions: r.ad_impressions || 0,
-        AdClicks:      r.ad_clicks || 0,
-        AdUnits:       r.ad_units || 0,
-        AdSales:       r.ad_sales || 0,
+        SKU_CODE:      r.sk,
+        Short_Name:    r.n || r.sk,
+        Category:      r.c,
+        GrossClicks:   r.aC || 0,
+        GrossUnits:    r.gU || 0,
+        GrossSales:    r.gS || 0,
+        AdSpend:       r.aS || 0,
+        AdImpressions: r.aI || 0,
+        AdClicks:      r.aC || 0,
+        AdUnits:       r.aU || 0,
+        AdSales:       r.aX || 0,
       });
-      if (r.lfm_gross_units != null) {
+      if (r.fU != null) {
         PERF_DATA.push({
-          Platform:      r.platform,
+          Platform:      r.p,
           Time:          'LFM',
-          SKU_CODE:      r.sku,
-          Short_Name:    r.short_name || r.sku,
-          Category:      r.category,
+          SKU_CODE:      r.sk,
+          Short_Name:    r.n || r.sk,
+          Category:      r.c,
           GrossClicks:   0,
-          GrossUnits:    r.lfm_gross_units || 0,
+          GrossUnits:    r.fU || 0,
           GrossSales:    0,
-          AdSpend:       r.lfm_roas > 0 && r.ad_sales ? r.ad_sales / r.lfm_roas : 0,
+          AdSpend:       (r.lf > 0 && r.aX) ? r.aX / r.lf : 0,
           AdImpressions: 0,
           AdClicks:      0,
           AdUnits:       0,
@@ -1254,7 +1267,8 @@ async function loadData() {
   } catch(e) {
     document.getElementById('loading-zone').innerHTML =
       '<div style="color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center">' +
-      'Failed to load data: ' + e.message + '<br><span style="color:var(--muted)">Check output/ folder or run the GitHub Action</span></div>';
+      'Failed to load data: ' + e.message +
+      '<br><span style="color:var(--muted)">Check output/ folder or run the GitHub Action</span></div>';
     console.error('loadData error:', e);
   }
 }
