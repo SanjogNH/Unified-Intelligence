@@ -535,17 +535,38 @@ function chColor(ch) { return CH_COLORS[ch] || '#C85C38'; }
 // ─── LOAD DATA ───────────────────────────────────────────────────────────────
 async function loadData() {
   try {
-    const res = await fetch('output/processed.json');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    DATA = await res.json();
-    ALL_SKUS = DATA.skus || [];
+    // Load 4 split files in parallel — each <2.5MB for GitHub Pages
+    const [idxRes, aRes, bRes, cityRes] = await Promise.all([
+      fetch('output/index.json'),
+      fetch('output/skus_a.json'),
+      fetch('output/skus_b.json'),
+      fetch('output/city.json'),
+    ]);
+    if (!idxRes.ok) throw new Error('index.json HTTP ' + idxRes.status);
+    if (!aRes.ok)   throw new Error('skus_a.json HTTP ' + aRes.status);
+    if (!bRes.ok)   throw new Error('skus_b.json HTTP ' + bRes.status);
+    if (!cityRes.ok)throw new Error('city.json HTTP ' + cityRes.status);
+
+    const [idx, skusA, skusB, cityData] = await Promise.all([
+      idxRes.json(), aRes.json(), bRes.json(), cityRes.json()
+    ]);
+
+    DATA = {
+      meta:     idx.meta,
+      channels: idx.channels,
+      heatmap:  idx.heatmap,
+      actions:  idx.actions,
+      skus:     [...(skusA.skus || []), ...(skusB.skus || [])],
+      city:     cityData.city || [],
+    };
+    ALL_SKUS = DATA.skus;
     filtered = [...ALL_SKUS];
     initFilters();
     updateBadges();
     render();
   } catch(e) {
     document.getElementById('main-content').innerHTML =
-      `<div class="loading"><span style="color:var(--red)">Failed to load processed.json: ${e.message}</span>
+      `<div class="loading"><span style="color:var(--red)">Failed to load data: ${e.message}</span>
        <span style="font-size:10px;color:var(--muted)">Run the GitHub Action or check the output/ folder.</span></div>`;
     document.getElementById('rec-badge').textContent = 'Error';
   }
