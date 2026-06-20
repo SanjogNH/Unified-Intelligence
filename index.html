@@ -1,0 +1,3286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nat Habit | Unified Intelligence Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Nat Habit True Palette */
+  --terra:        #C85C38;
+  --terra-deep:   #A8472A;
+  --terra-light:  #D97B56;
+  --blush:        #F2B8A0;
+  --blush-pale:   #FAE4D8;
+  --blush-faint:  #FDF3EE;
+
+  --cream:        #FDF8F4;
+  --cream-mid:    #F7EDE5;
+  --parchment:    #EDD9CE;
+  --linen:        #FBF5F0;
+
+  --forest:       #2A4A38;
+  --forest-mid:   #3D6B50;
+  --sage:         #7AAB8A;
+  --sage-faint:   #EAF3EE;
+
+  --brown:        #2C1A12;
+  --brown-mid:    #5C3D2E;
+  --brown-light:  #8B6554;
+  --brown-faint:  #C4A090;
+
+  --green:  #2A6644;
+  --teal:   #2A7A6A;
+  --amber:  #9B6E10;
+  --red:    #B83020;
+
+  --surface:  #FBF5F0;
+  --surface2: #F7EDE5;
+  --border:   #EDD9CE;
+  --border2:  #D4B8A8;
+  --text:     #2C1A12;
+  --muted:    #8B6554;
+
+  --sh-sm: 0 1px 4px rgba(200,92,56,.08), 0 4px 14px rgba(200,92,56,.07);
+  --sh-md: 0 4px 8px rgba(200,92,56,.10), 0 16px 40px rgba(200,92,56,.10);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--cream);
+  background-image:
+    radial-gradient(ellipse 900px 600px at 0% 0%,   rgba(200,92,56,.06) 0%, transparent 55%),
+    radial-gradient(ellipse 700px 500px at 100% 100%, rgba(200,92,56,.05) 0%, transparent 55%);
+  background-attachment: fixed;
+  color: var(--brown);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  min-height: 100vh;
+  font-size: 13px;
+}
+
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, #A8472A 0%, #C85C38 45%, #D4663F 100%);
+  height: 64px; padding: 0 24px;
+  display: flex; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 3px 28px rgba(168,71,42,.35);
+}
+header::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, transparent 0%, var(--blush) 30%, #fff 50%, var(--blush) 70%, transparent 100%);
+  opacity:.4;
+}
+.brand { display:flex; align-items:center; gap:12px; }
+.brand-logo, .brand-text { transition:opacity .15s; }
+.brand-logo:hover, .brand-text:hover { opacity:.8; }
+.brand-logo { height:40px; width:40px; border-radius:9px; object-fit:cover;
+  box-shadow:0 4px 14px rgba(0,0,0,.22); border:1.5px solid rgba(255,255,255,.2); flex-shrink:0; }
+.brand-text h1 { font-size:15px; font-weight:800; color:#fff; letter-spacing:.03em; line-height:1; }
+.brand-text h1 span { color:var(--blush); font-weight:400; }
+.brand-text p { font-size:9px; color:rgba(242,184,160,.7); font-family:'JetBrains Mono',monospace;
+  letter-spacing:.1em; text-transform:uppercase; margin-top:3px; }
+
+.header-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+.hdr-badge {
+  background:rgba(0,0,0,.18); border:1px solid rgba(255,255,255,.18);
+  border-radius:20px; padding:4px 12px;
+  font-size:10px; font-weight:600; color:rgba(255,255,255,.9);
+  font-family:'JetBrains Mono',monospace;
+}
+.hdr-badge.ok { border-color:rgba(122,171,138,.4); color:#b5d4be; }
+.hdr-divider { width:1px; height:24px; background:rgba(255,255,255,.2); }
+
+/* Metric + View toggles in header */
+.view-tabs {
+  display:flex; gap:2px;
+  background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.15);
+  border-radius:7px; padding:3px;
+}
+.view-tab {
+  padding:4px 11px; border-radius:5px; cursor:pointer;
+  font-size:10px; color:rgba(255,255,255,.65);
+  transition:all .15s; white-space:nowrap;
+}
+.view-tab.active { background:rgba(255,255,255,.22); color:#fff; font-weight:600; }
+.view-tab:hover:not(.active) { color:rgba(255,255,255,.85); }
+.filter-label { color:rgba(255,255,255,.6); font-size:9px; font-family:'JetBrains Mono',monospace;
+  text-transform:uppercase; letter-spacing:.6px; white-space:nowrap; }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  background: var(--linen);
+  border-bottom: 1px solid var(--border);
+  padding: 9px 24px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  position: sticky; top: 64px; z-index: 190;
+}
+.filter-chip-group { display:flex; align-items:center; gap:6px; }
+.fbar-label { color:var(--muted); font-size:9px; font-family:'JetBrains Mono',monospace;
+  text-transform:uppercase; letter-spacing:.6px; white-space:nowrap; }
+.filter-divider { width:1px; height:22px; background:var(--border); flex-shrink:0; }
+
+/* Multi-select dropdown */
+.ms-wrap { position:relative; }
+.ms-trigger {
+  display:flex; align-items:center; gap:6px;
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:7px; padding:5px 10px; cursor:pointer;
+  font-size:11px; color:var(--text); white-space:nowrap;
+  min-width:130px; user-select:none; transition:border-color .15s;
+}
+.ms-trigger:hover { border-color:var(--border2); }
+.ms-trigger.has-selection { border-color:var(--terra); color:var(--terra); }
+.ms-trigger .caret { margin-left:auto; font-size:9px; color:var(--muted); transition:transform .15s; }
+.ms-trigger.open .caret { transform:rotate(180deg); }
+.ms-count { background:var(--terra); color:white; border-radius:10px; padding:1px 6px;
+  font-size:9px; font-family:'JetBrains Mono',monospace; }
+
+.ms-dropdown {
+  display:none; position:absolute; top:calc(100% + 4px); left:0;
+  background:var(--linen); border:1px solid var(--border2);
+  border-radius:9px; min-width:200px; max-width:260px;
+  box-shadow:0 8px 32px rgba(44,26,18,.12); z-index:500; overflow:hidden;
+}
+.ms-dropdown.open { display:block; }
+.ms-search-wrap { padding:7px 10px; border-bottom:1px solid var(--border); }
+.ms-search {
+  width:100%; background:var(--cream-mid); border:1px solid var(--border);
+  color:var(--text); font-family:'Plus Jakarta Sans',sans-serif; font-size:11px;
+  padding:5px 9px; border-radius:5px; outline:none;
+}
+.ms-search:focus { border-color:var(--terra); }
+.ms-actions { display:flex; gap:6px; padding:6px 10px; border-bottom:1px solid var(--border); }
+.ms-action-btn { font-size:10px; color:var(--terra); cursor:pointer; font-family:'JetBrains Mono',monospace;
+  background:none; border:none; padding:0; }
+.ms-action-btn:hover { text-decoration:underline; }
+.ms-list { max-height:220px; overflow-y:auto; padding:4px 0; }
+.ms-item {
+  display:flex; align-items:center; gap:8px;
+  padding:7px 12px; cursor:pointer; font-size:11px; transition:background .1s;
+}
+.ms-item:hover { background:var(--cream-mid); }
+.ms-item.checked { color:var(--terra); }
+.ms-checkbox {
+  width:14px; height:14px; border:1px solid var(--border2);
+  border-radius:3px; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; font-size:9px; transition:all .1s;
+}
+.ms-item.checked .ms-checkbox { background:var(--terra); border-color:var(--terra); color:white; }
+.ms-item-label { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ms-item-count { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+
+/* Sort panel */
+.sort-panel-wrap { position:relative; }
+.sort-trigger {
+  display:flex; align-items:center; gap:6px;
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:7px; padding:5px 10px; cursor:pointer;
+  font-size:11px; color:var(--text); white-space:nowrap;
+  user-select:none; transition:border-color .15s;
+}
+.sort-trigger:hover { border-color:var(--border2); }
+.sort-trigger.active { border-color:var(--terra-light); color:var(--terra); }
+.sort-dropdown {
+  display:none; position:absolute; top:calc(100% + 4px); right:0;
+  background:var(--linen); border:1px solid var(--border2);
+  border-radius:9px; width:260px;
+  box-shadow:0 8px 32px rgba(44,26,18,.12); z-index:500; overflow:hidden;
+}
+.sort-dropdown.open { display:block; }
+.sort-header { padding:10px 12px; font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace;
+  text-transform:uppercase; letter-spacing:.6px; border-bottom:1px solid var(--border); }
+.sort-option {
+  display:flex; align-items:center; gap:10px;
+  padding:8px 12px; cursor:pointer; font-size:11px; transition:background .1s;
+}
+.sort-option:hover { background:var(--cream-mid); }
+.sort-option.active { color:var(--terra); }
+.sort-icon { width:18px; text-align:center; font-size:13px; }
+.sort-dir-btns { display:flex; gap:4px; margin-left:auto; }
+.sort-dir-btn {
+  width:22px; height:18px; border-radius:3px; font-size:9px;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--border); color:var(--muted); cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+}
+.sort-dir-btn.active { background:var(--terra); border-color:var(--terra); color:white; }
+
+/* Active filter chips */
+.active-filters { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.active-chip {
+  display:flex; align-items:center; gap:5px;
+  border-radius:20px; padding:3px 8px; font-size:10px;
+}
+.active-chip .remove { cursor:pointer; opacity:.7; font-size:11px; line-height:1; }
+.active-chip .remove:hover { opacity:1; }
+.clear-all-btn { font-size:10px; color:var(--red); cursor:pointer; font-family:'JetBrains Mono',monospace;
+  background:none; border:none; padding:0; opacity:.7; }
+.clear-all-btn:hover { opacity:1; text-decoration:underline; }
+
+/* Overlay to close dropdowns */
+.overlay { display:none; position:fixed; inset:0; z-index:100; }
+.overlay.open { display:block; }
+
+/* ── MAIN ── */
+.main { padding:18px 24px; display:flex; flex-direction:column; gap:18px; }
+
+/* SUMMARY CARDS */
+.summary-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:10px; }
+.summary-card {
+  background:var(--linen); border:1px solid var(--parchment);
+  border-radius:10px; padding:14px; position:relative; overflow:hidden;
+  box-shadow:var(--sh-sm);
+}
+.summary-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--terra); }
+.card-label { color:var(--muted); font-size:9px; font-family:'JetBrains Mono',monospace;
+  text-transform:uppercase; letter-spacing:.8px; margin-bottom:7px; }
+.card-value { font-size:21px; font-weight:700; letter-spacing:-.5px; color:var(--brown); }
+.card-sub { display:flex; gap:8px; margin-top:5px; align-items:center; }
+.card-ach { font-size:11px; font-family:'JetBrains Mono',monospace; font-weight:600; }
+.card-plan { color:var(--muted); font-size:10px; }
+.ach-bar { height:3px; background:var(--parchment); border-radius:2px; margin-top:8px; }
+.ach-bar-fill { height:100%; border-radius:2px; }
+
+/* CHANNEL CARDS */
+.channel-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(270px, 1fr)); gap:10px; }
+.channel-card {
+  background:var(--linen); border:1px solid var(--parchment);
+  border-radius:10px; padding:14px; cursor:pointer; transition:border-color .15s, box-shadow .15s;
+  box-shadow:var(--sh-sm);
+}
+.channel-card:hover { border-color:var(--terra-light); box-shadow:var(--sh-md); }
+.ch-header { display:flex; flex-direction:column; align-items:flex-start; margin-bottom:11px; gap:2px; }
+.ch-name { font-weight:700; font-size:13px; }
+.ch-date { color:var(--muted); font-size:9px; font-family:'JetBrains Mono',monospace; }
+.ch-metrics { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
+.ch-metric-label { color:var(--muted); font-size:9px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; margin-bottom:2px; }
+.ch-metric-val { font-size:13px; font-weight:700; }
+.ch-metric-sub { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+.ch-bar { height:4px; background:var(--parchment); border-radius:2px; margin-top:10px; }
+.ch-bar-fill { height:100%; border-radius:2px; }
+
+/* TABLE */
+.table-section {
+  background:var(--linen); border:1px solid var(--parchment);
+  border-radius:10px; overflow:hidden; box-shadow:var(--sh-sm);
+}
+.table-header { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.table-title { font-weight:700; font-size:13px; color:var(--brown); }
+.table-search-wrap { display:flex; gap:6px; align-items:center; }
+.table-search {
+  background:var(--cream-mid); border:1px solid var(--border);
+  color:var(--text); font-family:'Plus Jakarta Sans',sans-serif; font-size:11px;
+  padding:5px 10px; border-radius:6px; outline:none; width:200px;
+}
+.table-search:focus { border-color:var(--terra); }
+.table-wrap { overflow-x:auto; max-height:500px; overflow-y:auto; }
+table { width:100%; border-collapse:collapse; font-size:11.5px; }
+thead { position:sticky; top:0; z-index:10; }
+th {
+  background:var(--cream-mid); color:var(--muted);
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  text-transform:uppercase; letter-spacing:.5px;
+  padding:9px 12px; text-align:right; white-space:nowrap;
+  cursor:pointer; user-select:none; border-bottom:1px solid var(--border);
+}
+th:first-child, th:nth-child(2), th:nth-child(3) { text-align:left; }
+th:hover { color:var(--brown); }
+th .th-inner { display:flex; align-items:center; justify-content:flex-end; gap:4px; }
+th:first-child .th-inner, th:nth-child(2) .th-inner, th:nth-child(3) .th-inner { justify-content:flex-start; }
+th .sort-arrow { opacity:0; font-size:10px; }
+th:hover .sort-arrow { opacity:.5; }
+th.sort-active .sort-arrow { opacity:1; color:var(--terra); }
+
+td { padding:7px 12px; border-bottom:1px solid rgba(237,217,206,.5); vertical-align:middle; white-space:nowrap; text-align:right; }
+td:first-child, td:nth-child(2), td:nth-child(3) { text-align:left; }
+tr:hover td { background:rgba(200,92,56,.03); }
+
+.sku-tag { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--terra);
+  background:rgba(200,92,56,.1); padding:2px 6px; border-radius:4px; }
+.cat-tag { font-size:10px; color:var(--forest-mid); background:rgba(42,74,56,.1);
+  padding:2px 6px; border-radius:4px; }
+.channel-tag { font-size:10px; font-weight:600; padding:2px 7px; border-radius:4px; }
+.ach-pill { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10px;
+  font-weight:600; padding:2px 7px; border-radius:4px; min-width:50px; text-align:center; }
+.ach-good { background:rgba(42,102,68,.15); color:var(--green); }
+.ach-ok   { background:rgba(155,110,16,.15); color:var(--amber); }
+.ach-bad  { background:rgba(184,48,32,.15); color:var(--red); }
+.num { font-family:'JetBrains Mono',monospace; }
+.num-muted { color:var(--muted); font-family:'JetBrains Mono',monospace; }
+
+/* PAGINATION */
+.pagination { display:flex; align-items:center; justify-content:space-between; padding:9px 16px;
+  border-top:1px solid var(--border); color:var(--muted); font-size:10px; font-family:'JetBrains Mono',monospace; }
+.page-btns { display:flex; gap:3px; }
+.page-btn { background:var(--surface2); border:1px solid var(--border); color:var(--text);
+  font-size:10px; padding:3px 8px; border-radius:4px; cursor:pointer; font-family:'JetBrains Mono',monospace; }
+.page-btn:disabled { opacity:.3; cursor:default; }
+.page-btn.active { background:var(--terra); border-color:var(--terra); color:white; }
+
+/* CATEGORY VIEW */
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+/* Category row — card layout */
+.cat-row {
+  padding:10px 12px; margin-bottom:6px;
+  border:1px solid var(--border); border-radius:8px;
+  cursor:pointer; transition:border-color .15s, box-shadow .15s;
+  background:var(--surface);
+}
+.cat-row:hover { border-color:var(--terra-light); box-shadow:var(--sh-sm); background:#fff; }
+.cat-row-header { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+.cat-row-name { font-size:11.5px; font-weight:600; flex:1; }
+.mini-bar-wrap { flex:1; max-width:80px; }
+.mini-bar { height:4px; background:var(--parchment); border-radius:3px; }
+.mini-bar-fill { height:100%; border-radius:3px; }
+/* 7-column metric grid (default) / 9-column when pro-rated cols shown */
+.cat-nums {
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:0; border-top:1px solid var(--border); padding-top:7px;
+}
+.cat-nums.nine-col { grid-template-columns:repeat(9,1fr); }
+
+/* LM/3M mode toggle pill */
+.lm-toggle-wrap {
+  display:flex; align-items:center; gap:4px;
+  padding:5px 16px; border-bottom:1px solid var(--border);
+  background:var(--linen);
+}
+.lm-toggle-label { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace;
+  text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; margin-right:2px; }
+.lm-toggle-btn {
+  background:var(--surface2); border:1px solid var(--border);
+  color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:9px;
+  padding:3px 9px; border-radius:4px; cursor:pointer;
+  text-transform:uppercase; letter-spacing:.3px;
+  transition:all .12s; white-space:nowrap;
+}
+.lm-toggle-btn:hover { border-color:var(--terra-light); color:var(--terra); }
+.lm-toggle-btn.active { background:var(--blush-pale); border-color:var(--terra); color:var(--terra-deep); font-weight:700; }
+/* SKU table toggle lives inside the table header */
+.sku-lm-toggle-wrap {
+  display:flex; align-items:center; gap:4px; margin-left:auto;
+}
+.cat-num { text-align:center; padding:0 4px; border-right:1px solid var(--border); }
+.cat-num:last-child { border-right:none; }
+.cat-num-val { font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:600; color:var(--brown); display:block; }
+.cat-num-label { color:var(--muted); font-size:8px; text-transform:uppercase; letter-spacing:.04em; display:block; margin-top:2px; }
+
+.section-title { font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase;
+  letter-spacing:.8px; font-family:'JetBrains Mono',monospace; margin-bottom:10px; }
+.no-data { text-align:center; padding:40px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+
+/* Category sort bar */
+.cat-sort-bar { display:flex; gap:4px; flex-wrap:wrap; padding:8px 16px;
+  border-bottom:1px solid var(--border); background:var(--cream-mid); }
+.cat-sort-btn {
+  background:var(--linen); border:1px solid var(--border);
+  color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  padding:4px 10px; border-radius:5px; cursor:pointer;
+  text-transform:uppercase; letter-spacing:.4px;
+  display:flex; align-items:center; gap:4px; transition:all .1s; white-space:nowrap;
+}
+.cat-sort-btn:hover { border-color:var(--terra-light); color:var(--terra); background:var(--blush-faint); }
+.cat-sort-btn.active { background:var(--blush-pale); border-color:var(--terra); border-width:1.5px; color:var(--terra-deep); font-weight:700; }
+.cat-sort-btn.active:hover { background:var(--blush-pale); border-color:var(--terra-deep); }
+.cat-sort-dir { font-size:11px; opacity:.85; }
+
+/* ── INTEL BUTTON on channel card ── */
+.ch-intel-btn {
+  position:absolute; top:10px; right:10px;
+  width:22px; height:22px; border-radius:50%;
+  background:var(--terra); border:none;
+  color:#fff; font-size:10px; font-weight:800;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all .15s; z-index:2;
+  font-family:'JetBrains Mono',monospace; line-height:1;
+  flex-shrink:0; box-shadow:0 2px 6px rgba(200,92,56,.4);
+  letter-spacing:0;
+}
+.ch-intel-btn:hover {
+  background:var(--terra-deep, #A8472A); color:#fff;
+  box-shadow:0 3px 10px rgba(200,92,56,.5);
+  transform:scale(1.12);
+}
+
+/* ── INTEL POPUP OVERLAY ── */
+.intel-overlay {
+  display:none; position:fixed; inset:0; z-index:1000;
+  background:rgba(44,26,18,.55); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center; padding:20px;
+}
+.intel-overlay.open { display:flex; }
+
+.intel-modal {
+  background:var(--linen);
+  border:1px solid var(--parchment);
+  border-radius:16px;
+  width:min(960px, 96vw);
+  max-height:88vh;
+  box-shadow:0 20px 60px rgba(44,26,18,.28), 0 4px 16px rgba(200,92,56,.15);
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+
+.intel-modal-header {
+  padding:16px 20px;
+  background:linear-gradient(135deg, #A8472A 0%, #C85C38 50%, #D4663F 100%);
+  display:flex; align-items:center; gap:12px;
+  flex-shrink:0;
+  position:relative;
+}
+.intel-modal-header::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:1.5px;
+  background:linear-gradient(90deg, transparent, var(--blush), transparent);
+  opacity:.5;
+}
+.intel-modal-platform {
+  font-size:17px; font-weight:800; color:#fff; letter-spacing:.02em;
+}
+.intel-modal-sub {
+  font-size:9px; color:rgba(242,184,160,.8);
+  font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:.1em; margin-top:1px;
+}
+.intel-modal-close {
+  margin-left:auto; width:28px; height:28px; border-radius:7px;
+  background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.2);
+  color:#fff; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:all .15s;
+}
+.intel-modal-close:hover { background:rgba(0,0,0,.35); }
+
+.intel-modal-meta {
+  padding:8px 20px 0;
+  display:flex; gap:10px; align-items:center; flex-shrink:0;
+  border-bottom:1px solid var(--border); padding-bottom:10px;
+  background:var(--cream-mid);
+  flex-wrap:wrap;
+}
+.intel-meta-pill {
+  font-size:9px; font-family:'JetBrains Mono',monospace;
+  padding:3px 9px; border-radius:10px; font-weight:600;
+  border:1px solid;
+}
+.intel-meta-pill.ach-ok  { background:rgba(184,48,32,.1);  color:#B83020; border-color:rgba(184,48,32,.25); }
+.intel-meta-pill.ach-mid { background:rgba(155,110,16,.1); color:#9B6E10; border-color:rgba(155,110,16,.25); }
+.intel-meta-pill.ach-good{ background:rgba(42,102,68,.1);  color:#2A6644; border-color:rgba(42,102,68,.25); }
+.intel-meta-note { font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+
+/* ── TWO PANEL BODY ── */
+.intel-body {
+  display:grid; grid-template-columns:1fr 1fr;
+  flex:1; overflow:hidden; min-height:0;
+}
+.intel-panel {
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.intel-panel.lows  { border-right:1px solid var(--border); }
+.intel-panel-header {
+  padding:10px 16px; display:flex; align-items:center; gap:8px;
+  border-bottom:1px solid var(--border); flex-shrink:0;
+  background:var(--cream-mid);
+}
+.intel-panel-icon { font-size:14px; }
+.intel-panel-title { font-size:11px; font-weight:700; color:var(--brown); letter-spacing:.01em; }
+.intel-panel-count {
+  margin-left:auto; font-size:9px; font-family:'JetBrains Mono',monospace;
+  background:var(--parchment); padding:2px 7px; border-radius:8px; color:var(--muted);
+}
+.intel-panel-scroll {
+  flex:1; overflow-y:auto; padding:10px 14px;
+}
+
+/* ── CATEGORY BLOCK ── */
+.intel-cat-block {
+  margin-bottom:10px;
+  border:1px solid var(--border); border-radius:9px;
+  overflow:hidden; background:var(--surface);
+}
+.intel-cat-header {
+  padding:8px 12px; display:flex; align-items:center; gap:8px;
+  background:var(--cream-mid); border-bottom:1px solid var(--border);
+  cursor:pointer; user-select:none;
+}
+.intel-cat-header:hover { background:var(--parchment); }
+.intel-cat-name { font-size:11.5px; font-weight:700; color:var(--brown); flex:1; }
+.intel-cat-delta {
+  font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700;
+  padding:2px 7px; border-radius:5px;
+}
+.intel-cat-delta.neg { background:rgba(184,48,32,.12); color:#B83020; }
+.intel-cat-delta.pos { background:rgba(42,102,68,.12); color:#2A6644; }
+.intel-cat-ach {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:600;
+  padding:2px 7px; border-radius:4px;
+}
+.intel-cat-chevron { font-size:10px; color:var(--muted); margin-left:2px; transition:transform .15s; }
+.intel-cat-chevron.open { transform:rotate(180deg); }
+
+/* Plan context badge */
+.intel-plan-ctx {
+  display:flex; gap:5px; align-items:center; flex-wrap:wrap;
+  padding:6px 12px; border-bottom:1px solid var(--border);
+  background:var(--blush-faint);
+}
+.intel-plan-tag {
+  font-size:8.5px; font-family:'JetBrains Mono',monospace;
+  padding:2px 7px; border-radius:4px; font-weight:600;
+  background:rgba(155,110,16,.12); color:#9B6E10; border:1px solid rgba(155,110,16,.2);
+}
+.intel-plan-tag.normal { background:rgba(42,102,68,.1); color:#2A6644; border-color:rgba(42,102,68,.2); }
+.intel-plan-tag.stretch { background:rgba(184,48,32,.1); color:#B83020; border-color:rgba(184,48,32,.2); }
+.intel-plan-text { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+
+/* Action signal */
+.intel-action {
+  display:flex; align-items:flex-start; gap:7px;
+  padding:5px 12px; border-bottom:1px solid var(--border);
+  font-size:9.5px; color:var(--brown-mid);
+}
+.intel-action:last-child { border-bottom:none; }
+.intel-action-icon { font-size:11px; flex-shrink:0; margin-top:1px; }
+.intel-action-text { line-height:1.4; }
+.intel-action-text strong { color:var(--brown); font-weight:700; }
+
+/* SKU rows inside a category block */
+.intel-sku-list {
+  display:none;
+}
+.intel-sku-list.open { display:block; }
+.intel-sku-row {
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:6px; align-items:center;
+  padding:5px 12px; border-bottom:1px solid rgba(237,217,206,.5);
+  font-size:10px;
+}
+.intel-sku-row:last-child { border-bottom:none; }
+.intel-sku-name { color:var(--brown); font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.intel-sku-ach {
+  font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:4px; white-space:nowrap;
+}
+.intel-sku-delta {
+  font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--muted); white-space:nowrap;
+}
+
+/* No data state */
+.intel-empty {
+  text-align:center; padding:30px 16px; color:var(--muted);
+  font-family:'JetBrains Mono',monospace; font-size:10px; line-height:1.8;
+}
+
+/* Channel-level summary footer */
+.intel-footer {
+  padding:8px 14px; border-top:1px solid var(--border);
+  display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+  background:var(--cream-mid); flex-shrink:0;
+}
+.intel-footer-stat {
+  font-size:9px; font-family:'JetBrains Mono',monospace;
+  color:var(--muted);
+}
+.intel-footer-stat strong { color:var(--brown); }
+
+
+/* ── PERF SIGNAL DOT in SKU table ── */
+.perf-dot {
+  display:inline-block; width:8px; height:8px; border-radius:50%;
+  margin-right:5px; flex-shrink:0; vertical-align:middle;
+}
+.perf-dot.green  { background:var(--green); }
+.perf-dot.amber  { background:var(--amber); }
+.perf-dot.red    { background:var(--red); }
+.perf-dot.grey   { background:var(--parchment); }
+
+/* ── SKU PERF SLIDE PANEL ── */
+.perf-panel-overlay {
+  display:none; position:fixed; inset:0; z-index:950;
+  background:rgba(44,26,18,.4); backdrop-filter:blur(3px);
+}
+.perf-panel-overlay.open { display:block; }
+
+.perf-panel {
+  position:fixed; top:0; right:-940px; bottom:0;
+  width:min(900px, 98vw);
+  background:var(--cream);
+  border-left:1px solid var(--border2);
+  box-shadow:-12px 0 48px rgba(44,26,18,.2);
+  display:flex; flex-direction:column;
+  transition:right .3s cubic-bezier(.4,0,.2,1);
+  z-index:951; overflow:hidden;
+}
+.perf-panel.open { right:0; }
+
+/* Panel header */
+.perf-panel-header {
+  background:linear-gradient(135deg, #A8472A 0%, #C85C38 50%, #D4663F 100%);
+  padding:12px 18px; display:flex; align-items:flex-start; gap:12px; flex-shrink:0;
+  position:relative;
+}
+.perf-panel-header::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:1.5px;
+  background:linear-gradient(90deg,transparent,rgba(242,184,160,.7),transparent);
+}
+.pp-sku-name { font-size:14px; font-weight:800; color:#fff; line-height:1.3; flex:1; }
+.pp-sku-meta { font-size:9px; color:rgba(242,184,160,.8); font-family:'JetBrains Mono',monospace; margin-top:3px; text-transform:uppercase; letter-spacing:.08em; }
+.pp-close {
+  width:28px; height:28px; border-radius:7px; flex-shrink:0; margin-top:2px;
+  background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.2);
+  color:#fff; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background .15s;
+}
+.pp-close:hover { background:rgba(0,0,0,.38); }
+
+/* Period date inputs strip */
+.pp-period-strip {
+  background:var(--cream-mid); border-bottom:1px solid var(--border);
+  padding:8px 16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex-shrink:0;
+}
+.pp-period-label { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:.06em; }
+.pp-period-input {
+  background:var(--linen); border:1px solid var(--border); color:var(--text);
+  font-family:'JetBrains Mono',monospace; font-size:10px; padding:4px 8px;
+  border-radius:5px; outline:none; width:90px;
+}
+.pp-period-input:focus { border-color:var(--terra); }
+.pp-period-btn {
+  background:var(--terra); color:#fff; border:none; border-radius:5px;
+  padding:4px 12px; font-size:10px; font-family:'JetBrains Mono',monospace;
+  cursor:pointer; font-weight:600; transition:background .15s;
+}
+.pp-period-btn:hover { background:var(--terra-deep); }
+.pp-period-note { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+
+/* Sales context strip */
+.pp-sales-strip {
+  background:var(--linen); border-bottom:2px solid var(--parchment);
+  padding:10px 16px; display:grid; grid-template-columns:repeat(4,1fr); gap:0; flex-shrink:0;
+}
+.pp-sales-cell { text-align:center; padding:0 8px; border-right:1px solid var(--border); }
+.pp-sales-cell:last-child { border-right:none; }
+.pp-sales-val { font-size:15px; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--brown); display:block; }
+.pp-sales-lbl { font-size:8px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-top:2px; display:block; }
+
+/* Metric switcher bar */
+.pp-metric-bar {
+  background:var(--linen); border-bottom:1px solid var(--border);
+  padding:8px 16px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; flex-shrink:0;
+}
+.pp-metric-btn {
+  font-size:9.5px; font-family:'JetBrains Mono',monospace;
+  padding:4px 10px; border-radius:5px; cursor:pointer; border:1px solid var(--border);
+  color:var(--muted); background:var(--surface2); transition:all .12s; white-space:nowrap;
+}
+.pp-metric-btn:hover  { border-color:var(--terra-light); color:var(--terra); }
+.pp-metric-btn.active { background:var(--terra); border-color:var(--terra); color:#fff; font-weight:700; }
+
+/* Trend table — exact replica of perf dashboard */
+.pp-table-wrap { flex:1; overflow-y:auto; overflow-x:auto; min-width:0; }
+.pp-trend-table { min-width:820px; width:100%; border-collapse:collapse; font-size:11.5px; }
+.pp-trend-table thead { position:sticky; top:0; z-index:5; }
+.pp-trend-table th {
+  background:var(--cream-mid); color:var(--muted); font-family:'JetBrains Mono',monospace;
+  font-size:9px; text-transform:uppercase; letter-spacing:.05em;
+  padding:8px 12px; white-space:nowrap; border-bottom:1px solid var(--border);
+  text-align:right; cursor:pointer; user-select:none;
+}
+.pp-trend-table th:first-child,
+.pp-trend-table th:nth-child(2),
+.pp-trend-table th:nth-child(3) { text-align:left; }
+.pp-trend-table th:hover { color:var(--brown); }
+.pp-trend-table th.sort-active { color:var(--terra); }
+.pp-trend-table th .th-inner { display:flex; align-items:center; justify-content:flex-end; gap:4px; }
+.pp-trend-table th:first-child .th-inner,
+.pp-trend-table th:nth-child(2) .th-inner,
+.pp-trend-table th:nth-child(3) .th-inner { justify-content:flex-start; }
+.pp-trend-table td {
+  padding:7px 12px; border-bottom:1px solid rgba(237,217,206,.45);
+  white-space:nowrap; text-align:right; vertical-align:middle;
+}
+.pp-trend-table td:first-child,
+.pp-trend-table td:nth-child(2),
+.pp-trend-table td:nth-child(3) { text-align:left; }
+.pp-trend-table tr:hover td { background:var(--blush-faint); }
+.pp-trend-table tr.totals-row td {
+  background:var(--blush-pale); font-weight:700;
+  border-top:2px solid var(--parchment);
+}
+
+/* Direction arrows — exact from perf dash */
+.dir-up   { color:var(--green); font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; }
+.dir-down { color:var(--red);   font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; }
+.dir-flat { color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:10px; }
+
+/* No perf data */
+.pp-no-data {
+  text-align:center; padding:48px 24px; color:var(--muted);
+  font-family:'JetBrains Mono',monospace; font-size:11px; line-height:2.2;
+}
+
+/* Panel footer legend */
+.pp-legend {
+  padding:6px 16px; border-top:1px solid var(--border); background:var(--cream-mid);
+  font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; flex-shrink:0;
+}
+
+/* City view */
+.city-platform-grid { display:grid; grid-template-columns:1fr; gap:14px; }
+.city-platform-card { background:var(--linen); border:1px solid var(--parchment); border-radius:10px; overflow:hidden; box-shadow:var(--sh-sm); width:100%; }
+.city-platform-header { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.city-platform-title { font-weight:700; font-size:13px; }
+.city-sort-mini { display:flex; gap:4px; }
+.city-sort-mini-btn { background:var(--surface2); border:1px solid var(--border); color:var(--muted);
+  font-family:'JetBrains Mono',monospace; font-size:9px; padding:3px 7px; border-radius:4px; cursor:pointer; white-space:nowrap; }
+.city-sort-mini-btn.active { background:var(--blush-pale); border-color:var(--terra); border-width:1.5px; color:var(--terra-deep); font-weight:700; }
+.city-table { width:100%; border-collapse:collapse; font-size:11px; }
+.city-table th { background:var(--cream-mid); color:var(--muted); font-family:'JetBrains Mono',monospace;
+  font-size:8.5px; text-transform:uppercase; letter-spacing:.3px; padding:6px 8px; text-align:right; white-space:nowrap; cursor:pointer; }
+.city-table th:first-child { text-align:left; }
+.city-table th:hover { color:var(--brown); }
+.city-table th.sort-active { color:var(--terra); }
+.city-table td { padding:6px 8px; border-bottom:1px solid rgba(237,217,206,.4); text-align:right;
+  font-family:'JetBrains Mono',monospace; white-space:nowrap; }
+.city-table td:first-child { text-align:left; font-family:'Plus Jakarta Sans',sans-serif; }
+.city-table tr:hover td { background:rgba(200,92,56,.03); }
+.city-table tr:last-child td { border-bottom:none; }
+.city-name { font-size:11px; font-weight:500; white-space:nowrap; max-width:200px; overflow:hidden; text-overflow:ellipsis; }
+.city-bar-cell { width:80px; padding:6px 8px 6px 12px !important; }
+.city-bar-outer { height:4px; background:var(--parchment); border-radius:2px; width:80px; }
+.city-bar-inner { height:100%; border-radius:2px; }
+.city-sku-link { color:var(--terra); cursor:pointer; font-size:9px; text-decoration:underline; font-family:'JetBrains Mono',monospace; }
+.city-show-more { text-align:center; padding:8px; border-top:1px solid var(--border); }
+.city-show-btn { background:none; border:1px solid var(--border); color:var(--muted); font-size:10px;
+  font-family:'JetBrains Mono',monospace; padding:4px 12px; border-radius:5px; cursor:pointer; }
+.city-show-btn:hover { border-color:var(--terra); color:var(--terra); }
+
+/* City SKU modal */
+.city-modal-bg { display:none; position:fixed; inset:0; background:rgba(44,26,18,.6); z-index:900; align-items:center; justify-content:center; }
+.city-modal-bg.open { display:flex; }
+.city-modal { background:var(--linen); border:1px solid var(--border2); border-radius:12px;
+  width:1100px; max-width:96vw; max-height:85vh; display:flex; flex-direction:column; box-shadow:var(--sh-lg); }
+.city-modal-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.city-modal-title { font-weight:700; font-size:14px; color:var(--brown); }
+.city-modal-close { width:26px; height:26px; border-radius:50%; background:var(--surface2); border:1px solid var(--border);
+  color:var(--muted); cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; }
+.city-modal-close:hover { color:var(--brown); border-color:var(--border2); }
+.city-modal-body { overflow-y:auto; padding:14px 18px; flex:1; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width:5px; height:5px; }
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar-track { background:var(--cream); }
+::-webkit-scrollbar-thumb { background:var(--parchment); border-radius:3px; }
+
+/* text colors */
+.text-green { color:var(--green); }
+.text-red   { color:var(--red); }
+.text-amber { color:var(--amber); }
+
+/* ── UPLOAD SCREEN ── */
+#upload-zone {
+  min-height:calc(100vh - 64px);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:40px 24px; gap:28px;
+}
+.upload-title { text-align:center; }
+.upload-title h2 {
+  font-size:28px; font-weight:800; color:var(--brown);
+  letter-spacing:-.02em;
+}
+.upload-title h2 em { color:var(--terra); font-style:italic; }
+.upload-title p { font-size:13px; color:var(--muted); margin-top:8px; }
+
+.upload-dropzone {
+  width:100%; max-width:680px;
+  background:var(--linen); border:2px dashed var(--parchment);
+  border-radius:14px; padding:32px 40px;
+  display:flex; align-items:center; gap:28px;
+  cursor:pointer; transition:border-color .2s, background .2s;
+}
+.upload-dropzone:hover, .upload-dropzone.dragover {
+  border-color:var(--terra-light); background:var(--blush-faint);
+}
+.upload-arrow { flex-shrink:0; }
+.upload-arrow svg { width:48px; height:48px; }
+.upload-text { flex:1; }
+.upload-text strong { font-size:16px; font-weight:700; color:var(--brown); display:block; margin-bottom:4px; }
+.upload-text span { font-size:11px; color:var(--muted); }
+.upload-browse-btn {
+  flex-shrink:0; background:var(--terra); color:#fff;
+  border:none; border-radius:8px; padding:10px 22px;
+  font-size:13px; font-weight:600; cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  transition:background .15s;
+}
+.upload-browse-btn:hover { background:var(--terra-deep); }
+
+.upload-privacy { font-size:10px; color:var(--brown-faint); font-family:'JetBrains Mono',monospace; }
+
+.schema-strip {
+  width:100%; max-width:680px;
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+}
+.schema-col { font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; line-height:1.8; }
+.schema-col strong { color:var(--terra); display:block; margin-bottom:4px; font-size:9px;
+  text-transform:uppercase; letter-spacing:.1em; }
+
+/* ── DASHBOARD ── */
+#dashboard { display:none; }
+
+@media (max-width:700px) {
+  .two-col { grid-template-columns:1fr; }
+  .upload-dropzone { flex-direction:column; text-align:center; }
+}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeAllDropdowns()"></div>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="brand">
+    <img src="data:image/png;base64,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" class="brand-logo" alt="Nat Habit" title="Back to upload" style="cursor:pointer" onclick="goHome()">
+    <div class="brand-text" style="cursor:pointer" onclick="goHome()">
+      <h1>Nat Habit <span>/ Unified Intelligence</span></h1>
+      <p>Sales + Performance · Unified View</p>
+    </div>
+  </div>
+  <div class="header-right" id="header-right">
+    <div class="hdr-badge" id="rec-badge">No data</div>
+    <div class="hdr-badge ok" id="status-badge">Upload file →</div>
+  </div>
+</header>
+
+<!-- ══ FILTER BAR (hidden until data loaded) ══ -->
+<div class="filter-bar" id="filter-bar" style="display:none">
+  <!-- Platform multi-select -->
+  <div class="filter-chip-group">
+    <span class="fbar-label">Platform</span>
+    <div class="ms-wrap" id="ms-channel">
+      <div class="ms-trigger" onclick="toggleDropdown('ms-channel')">
+        <span class="ms-trigger-text">All Platforms</span>
+        <span class="caret">▾</span>
+      </div>
+      <div class="ms-dropdown">
+        <div class="ms-search-wrap"><input class="ms-search" placeholder="Search…" oninput="filterMsItems(this,'ms-channel')"></div>
+        <div class="ms-actions">
+          <button class="ms-action-btn" onclick="selectAll('ms-channel')">Select all</button>
+          <button class="ms-action-btn" onclick="clearAll('ms-channel')">Clear</button>
+        </div>
+        <div class="ms-list" id="ms-channel-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-divider"></div>
+
+  <!-- Category multi-select -->
+  <div class="filter-chip-group">
+    <span class="fbar-label">Category</span>
+    <div class="ms-wrap" id="ms-category">
+      <div class="ms-trigger" onclick="toggleDropdown('ms-category')">
+        <span class="ms-trigger-text">All Categories</span>
+        <span class="caret">▾</span>
+      </div>
+      <div class="ms-dropdown">
+        <div class="ms-search-wrap"><input class="ms-search" placeholder="Search…" oninput="filterMsItems(this,'ms-category')"></div>
+        <div class="ms-actions">
+          <button class="ms-action-btn" onclick="selectAll('ms-category')">Select all</button>
+          <button class="ms-action-btn" onclick="clearAll('ms-category')">Clear</button>
+        </div>
+        <div class="ms-list" id="ms-category-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-divider"></div>
+
+  <!-- Achievement filter -->
+  <div class="filter-chip-group">
+    <span class="fbar-label">Achievement</span>
+    <div class="ms-wrap" id="ms-ach">
+      <div class="ms-trigger" onclick="toggleDropdown('ms-ach')">
+        <span class="ms-trigger-text">All</span>
+        <span class="caret">▾</span>
+      </div>
+      <div class="ms-dropdown">
+        <div class="ms-actions" style="border-bottom:none;padding-bottom:0">
+          <button class="ms-action-btn" onclick="selectAll('ms-ach')">Select all</button>
+          <button class="ms-action-btn" onclick="clearAll('ms-ach')">Clear</button>
+        </div>
+        <div class="ms-list" id="ms-ach-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-divider"></div>
+
+  <!-- Sort panel -->
+  <div class="filter-chip-group">
+    <span class="fbar-label">Sort by</span>
+    <div class="sort-panel-wrap" id="sort-panel">
+      <div class="sort-trigger" id="sort-trigger" onclick="toggleDropdown('sort-panel')">
+        <span id="sort-trigger-text">Rev Achievement ↓</span>
+        <span class="caret">▾</span>
+      </div>
+      <div class="sort-dropdown" id="sort-panel-dropdown">
+        <div class="sort-header">Sort SKU table by</div>
+        <div id="sort-options-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active filter chips -->
+  <div class="active-filters" id="active-filters"></div>
+</div>
+
+<!-- ══ LOADING ══ -->
+<div id="loading-zone" style="min-height:calc(100vh - 64px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+  <div style="width:28px;height:28px;border:3px solid var(--parchment);border-top-color:var(--terra);border-radius:50%;animation:spin .7s linear infinite"></div>
+  <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">Loading dashboard data…</span>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div id="dashboard">
+  <!-- Metric + View toggles injected into header on load -->
+  <div class="main" id="main-content"></div>
+</div>
+
+
+<!-- ══ SKU PERFORMANCE SLIDE PANEL ══ -->
+<div class="perf-panel-overlay" id="perf-panel-overlay" onclick="closePerfPanel()"></div>
+<div class="perf-panel" id="perf-panel">
+
+  <!-- Header -->
+  <div class="perf-panel-header">
+    <div style="flex:1">
+      <div class="pp-sku-name" id="pp-sku-name">SKU Name</div>
+      <div class="pp-sku-meta" id="pp-sku-meta">Platform · Category</div>
+    </div>
+    <div class="pp-close" onclick="closePerfPanel()">×</div>
+  </div>
+
+  <!-- Period date inputs (LFM / L3M days — same as perf dashboard) -->
+  <div class="pp-period-strip">
+    <span class="pp-period-label">LFM</span>
+    <input class="pp-period-input" id="pp-lfm-start" value="01/03/2026" placeholder="dd/mm/yyyy" title="LFM Start">
+    <span class="pp-period-label">→</span>
+    <input class="pp-period-input" id="pp-lfm-end"   value="31/03/2026" placeholder="dd/mm/yyyy" title="LFM End">
+    <span class="pp-period-label" style="margin-left:8px">L3M</span>
+    <input class="pp-period-input" id="pp-l3m-start" value="01/12/2025" placeholder="dd/mm/yyyy" title="L3M Start">
+    <span class="pp-period-label">→</span>
+    <input class="pp-period-input" id="pp-l3m-end"   value="28/02/2026" placeholder="dd/mm/yyyy" title="L3M End">
+    <button class="pp-period-btn" onclick="refreshPerfPanel()">Apply</button>
+    <span class="pp-period-note" id="pp-period-note">LFM: 31d · L3M: 90d</span>
+  </div>
+
+  <!-- Sales context strip -->
+  <div class="pp-sales-strip" id="pp-sales-strip"></div>
+
+  <!-- Metric switcher -->
+  <div class="pp-metric-bar" id="pp-metric-bar"></div>
+
+  <!-- Trend table -->
+  <div class="pp-table-wrap" id="pp-table-wrap">
+    <div class="pp-no-data">Click a SKU row to open its performance view</div>
+  </div>
+
+  <!-- Legend -->
+  <div class="pp-legend">
+    Pro-rated: LFM = LFM days × (MTD days ÷ LFM total days) &nbsp;|&nbsp;
+    L3M = L3M days × (MTD days ÷ L3M total days) &nbsp;|&nbsp;
+    Arrows = % change vs prior period
+  </div>
+</div>
+
+<!-- ══ INTELLIGENCE POPUP ══ -->
+<div class="intel-overlay" id="intel-overlay" onclick="closeIntelModal(event)">
+  <div class="intel-modal" onclick="event.stopPropagation()">
+    <div class="intel-modal-header">
+      <div>
+        <div class="intel-modal-platform" id="intel-platform-name">Platform</div>
+        <div class="intel-modal-sub">Channel Intelligence · Actionable Summary</div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <div id="intel-header-pills" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        <div class="intel-modal-close" onclick="closeIntelModal()">×</div>
+      </div>
+    </div>
+    <div class="intel-modal-meta" id="intel-meta-bar"></div>
+    <div class="intel-body">
+      <!-- LOWS -->
+      <div class="intel-panel lows">
+        <div class="intel-panel-header">
+          <span class="intel-panel-icon">📉</span>
+          <span class="intel-panel-title">Lows — Needs Attention</span>
+          <span class="intel-panel-count" id="intel-lows-count">0</span>
+        </div>
+        <div class="intel-panel-scroll" id="intel-lows-body"></div>
+      </div>
+      <!-- HIGHS -->
+      <div class="intel-panel highs">
+        <div class="intel-panel-header">
+          <span class="intel-panel-icon">📈</span>
+          <span class="intel-panel-title">Highs — Push Further</span>
+          <span class="intel-panel-count" id="intel-highs-count">0</span>
+        </div>
+        <div class="intel-panel-scroll" id="intel-highs-body"></div>
+      </div>
+    </div>
+    <div class="intel-footer" id="intel-footer"></div>
+  </div>
+</div>
+
+<!-- City SKU modal -->
+<div class="city-modal-bg" id="city-modal-bg" onclick="closeCityModal(event)">
+  <div class="city-modal" onclick="event.stopPropagation()">
+    <div class="city-modal-header">
+      <div class="city-modal-title" id="city-modal-title">City · SKU Breakdown</div>
+      <div class="city-modal-close" onclick="closeCityModal()">×</div>
+    </div>
+    <div class="city-modal-body" id="city-modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ─── Multi-select state (must be declared before initDashboard runs) ───
+const msState = {
+  'ms-channel':  { allItems:[], selected:new Set() },
+  'ms-category': { allItems:[], selected:new Set() },
+  'ms-ach':      { allItems:[], selected:new Set() },
+};
+
+// ─── State ───
+let ALL_DATA  = [];
+let CITY_DATA = [];
+let filtered  = [];
+let MTD_DATE_STR = 'N/A';
+let currentView   = 'overview';
+let currentMetric = 'revenue';
+let currentPage   = 1;
+const PAGE_SIZE   = 50;
+let tableSearchVal = '';
+
+// ─── Palette ───
+const CH_COLORS = {
+  'Amazon':'#FF9900','Nykaa':'#FC2779','Flipkart':'#2874F0',
+  'Myntra':'#FF3F6C','Meesho':'#9B59B6','Blinkit':'#FFE000',
+  'Instamart':'#FC6D26','Zepto':'#8A2BE2','Big Basket':'#84C225',
+  'First Cry':'#F7941D','Cred':'#1C1C1C','Snapdeal':'#E40046',
+  'Pop Club':'#E91E8C','Jio Mart':'#0067B2','Purplle':'#942D8D',
+  'Tata 1mg':'#E3262C','Tata Cliq':'#E40E24','Kindlife':'#6EC52B',
+  'Pharmeasy':'#4CAF50','Amala Earth':'#4CAF50',
+};
+function chColor(ch) { return CH_COLORS[ch] || '#C85C38'; }
+
+const ACH_BUCKETS = [
+  { key:'over100', label:'Exceeding (>100%)', color:'#2A6644' },
+  { key:'good',    label:'On Track (80-100%)', color:'#2A7A6A' },
+  { key:'ok',      label:'Moderate (50-80%)', color:'#9B6E10' },
+  { key:'bad',     label:'Lagging (<50%)',     color:'#B83020' },
+];
+
+// ─── Helpers ───
+function fmt(n, dec=0) {
+  if (n == null || isNaN(n)) return '—';
+  if (Math.abs(n) >= 1e7) return '₹' + (n/1e7).toFixed(2) + 'Cr';
+  if (Math.abs(n) >= 1e5) return '₹' + (n/1e5).toFixed(1) + 'L';
+  if (Math.abs(n) >= 1000) return '₹' + (n/1000).toFixed(1) + 'K';
+  return '₹' + n.toFixed(dec);
+}
+function fmtQ(n) {
+  if (n == null || isNaN(n)) return '—';
+  if (n >= 1e5) return (n/1e5).toFixed(1)+'L';
+  if (n >= 1000) return (n/1000).toFixed(1)+'K';
+  return Math.round(n).toString();
+}
+function fmtPct(n) {
+  if (!n || isNaN(n)) return '0%';
+  if (n > 9999) return '>999%';
+  return n.toFixed(0) + '%';
+}
+function achBucket(pct) {
+  if (pct > 100) return 'over100';
+  if (pct >= 80)  return 'good';
+  if (pct >= 50)  return 'ok';
+  return 'bad';
+}
+function achClass(pct) { return pct >= 50 ? (pct >= 80 ? 'ach-good' : 'ach-ok') : 'ach-bad'; }
+function achColor(pct) {
+  if (pct > 100) return 'var(--green)';
+  if (pct >= 80)  return 'var(--teal)';
+  if (pct >= 50)  return 'var(--amber)';
+  return 'var(--red)';
+}
+
+// ─── PERF DATA (loaded from skus JSON) ───────────────────────────────────────
+let PERF_DATA   = [];
+let PERF_LOADED = false;
+
+function getPerfRow(platform, skuCode, period) {
+  return PERF_DATA.find(r => r.Platform === platform && r.SKU_CODE === skuCode && r.Time === period) || null;
+}
+function getPerfSku(platform, skuCode) {
+  return {
+    mtd: getPerfRow(platform, skuCode, 'MTD'),
+    lfm: getPerfRow(platform, skuCode, 'LFM'),
+    l3m: getPerfRow(platform, skuCode, 'L3M'),
+  };
+}
+function derivePerfMetrics(row) {
+  if (!row) return null;
+  const orgUnits  = row.GrossUnits  - row.AdUnits;
+  const orgSales  = row.GrossSales  - row.AdSales;
+  const orgClicks = row.GrossClicks - row.AdClicks;
+  return {
+    ...row,
+    OrgUnits:  orgUnits,
+    OrgSales:  orgSales,
+    OrgClicks: orgClicks,
+    CVR:    row.GrossClicks   > 0 ? row.GrossUnits / row.GrossClicks   * 100 : null,
+    AdCVR:  row.AdClicks      > 0 ? row.AdUnits    / row.AdClicks      * 100 : null,
+    OrgCVR: orgClicks         > 0 ? orgUnits        / orgClicks         * 100 : null,
+    CTR:    row.AdImpressions > 0 ? row.AdClicks    / row.AdImpressions * 100 : null,
+    ROAS:   row.AdSpend       > 0 ? row.AdSales     / row.AdSpend            : null,
+    OrgPct: row.GrossUnits    > 0 ? orgUnits         / row.GrossUnits    * 100 : null,
+  };
+}
+
+// ─── LOAD FROM JSON ───────────────────────────────────────────────────────────
+async function loadData() {
+  // Short key map (matches process.py slim_sku output)
+  // p=platform sk=sku n=short_name c=category d=date pr=pro_ratio
+  // pR=planned_rev pQ=planned_qty xR=prorata_rev xQ=prorata_qty
+  // aR=actual_rev aQ=actual_qty lR=lm_rev lQ=lm_qty 3R=l3m_rev 3Q=l3m_qty
+  // gU=gross_units gS=gross_sales aS=ad_spend aI=ad_impressions
+  // aC=ad_clicks aU=ad_units aX=ad_sales fU=lfm_gross_units lf=lfm_roas
+  // tf=top_flag fs=flags
+  try {
+    const [idxRes, skuRes, cityRes] = await Promise.all([
+      fetch('output/index.json'),
+      fetch('output/skus.json'),
+      fetch('output/city.json'),
+    ]);
+    if (!idxRes.ok)  throw new Error('index.json HTTP ' + idxRes.status);
+    if (!skuRes.ok)  throw new Error('skus.json HTTP '  + skuRes.status);
+    if (!cityRes.ok) throw new Error('city.json HTTP '  + cityRes.status);
+
+    const [idx, skuData, cityData] = await Promise.all([
+      idxRes.json(), skuRes.json(), cityRes.json()
+    ]);
+
+    const allSkus = skuData.skus || [];
+
+    // Expand short keys → ALL_DATA format the existing rendering code expects
+    ALL_DATA = allSkus.map(r => {
+      const proR = r.xR || 0;
+      const proQ = r.xQ || 0;
+      const actR = r.aR || 0;
+      const actQ = r.aQ || 0;
+      const lmR  = r.lR || 0;
+      const pr   = r.pr || 1;
+      return {
+        Channel:                  r.p,
+        SKU:                      r.n || r.sk,
+        SKU_CODE:                 r.sk,
+        Category:                 r.c,
+        Planned_Revenue:          r.pR || 0,
+        Planned_Qty:              r.pQ || 0,
+        Prorata_Planned_Revenue:  proR,
+        Prorata_Planned_Qty:      proQ,
+        Actual_Revenue:           actR,
+        Actual_Qty:               actQ,
+        LM_Revenue:               lmR,
+        LM_Qty:                   r.lQ || 0,
+        L3M_Revenue:              r['3R'] || 0,
+        L3M_Qty:                  r['3Q'] || 0,
+        Rev_Ach_Pct:              proR > 0 ? actR / proR * 100 : 0,
+        Qty_Ach_Pct:              proQ > 0 ? actQ / proQ * 100 : 0,
+        Rev_Delta:                actR - proR,
+        Disc_Pct:                 0,
+        _proRatio:                pr,
+        _topFlag:                 r.tf || null,
+        _flags:                   r.fs || {},
+        'Actual Sales Updated Till': r.d || 'N/A',
+      };
+    }).filter(r => r.Channel && r.SKU);
+
+    CITY_DATA = (cityData.city || []).map(r => ({
+      Channel:        r.p,
+      City:           r.c,
+      SKU_CODE:       r.s,
+      SKU:            r.n || r.s,
+      Category:       r.g,
+      Actual_Revenue: r.a || 0,
+      Actual_Qty:     r.a || 0,
+      LM_Revenue:     r.l || 0,
+      LM_Qty:         r.l || 0,
+      L3M_Revenue:    r['3'] || 0,
+      L3M_Qty:        r['3'] || 0,
+    })).filter(r => r.Channel && r.City && r.SKU_CODE);
+
+    // Rebuild PERF_DATA from ad fields in each SKU row
+    PERF_DATA = [];
+    allSkus.forEach(r => {
+      if (r.aS == null && r.gU == null) return;
+      PERF_DATA.push({
+        Platform:      r.p,
+        Time:          'MTD',
+        SKU_CODE:      r.sk,
+        Short_Name:    r.n || r.sk,
+        Category:      r.c,
+        GrossClicks:   r.aC || 0,
+        GrossUnits:    r.gU || 0,
+        GrossSales:    r.gS || 0,
+        AdSpend:       r.aS || 0,
+        AdImpressions: r.aI || 0,
+        AdClicks:      r.aC || 0,
+        AdUnits:       r.aU || 0,
+        AdSales:       r.aX || 0,
+      });
+      if (r.fU != null) {
+        PERF_DATA.push({
+          Platform:      r.p,
+          Time:          'LFM',
+          SKU_CODE:      r.sk,
+          Short_Name:    r.n || r.sk,
+          Category:      r.c,
+          GrossClicks:   0,
+          GrossUnits:    r.fU || 0,
+          GrossSales:    0,
+          AdSpend:       (r.lf > 0 && r.aX) ? r.aX / r.lf : 0,
+          AdImpressions: 0,
+          AdClicks:      0,
+          AdUnits:       0,
+          AdSales:       0,
+        });
+      }
+    });
+    PERF_LOADED = PERF_DATA.length > 0;
+
+    const meta = idx.meta || {};
+    MTD_DATE_STR = meta.generated_at
+      ? new Date(meta.generated_at).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})
+      : 'N/A';
+
+    initDashboard();
+
+  } catch(e) {
+    document.getElementById('loading-zone').innerHTML =
+      `<div style="color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center">`+
+      'Failed to load data: ' + e.message +
+      `<br><span style="color:var(--muted)">Check output/ folder or run the GitHub Action</span></div>`;
+    console.error('loadData error:', e);
+  }
+}
+
+function initDashboard() {
+  const channels  = [...new Set(ALL_DATA.map(r => r.Channel))].sort();
+  const cats      = [...new Set(ALL_DATA.map(r => r.Category))].sort();
+  const chCounts  = {}; ALL_DATA.forEach(r => { chCounts[r.Channel]   = (chCounts[r.Channel]   || 0) + 1; });
+  const catCounts = {}; ALL_DATA.forEach(r => { catCounts[r.Category] = (catCounts[r.Category] || 0) + 1; });
+
+  buildMsItems('ms-channel',  channels.map(c => ({ value:c, label:c, count:chCounts[c]||0 })));
+  buildMsItems('ms-category', cats.map(c => ({ value:c, label:c, count:catCounts[c]||0 })));
+  buildMsItems('ms-ach', ACH_BUCKETS.map(b => ({ value:b.key, label:b.label, count:'' })));
+
+  buildSortPanel();
+  updateSortTrigger();
+
+  filtered = [...ALL_DATA];
+  applySort();
+
+  const hr = document.getElementById('header-right');
+  hr.innerHTML = `
+    <div class="hdr-badge" id="rec-badge">${ALL_DATA.length} rows</div>
+    <div class="hdr-badge ok">MTD: ${MTD_DATE_STR}</div>
+    <div class="hdr-divider"></div>
+    <span class="filter-label">Metric</span>
+    <div class="view-tabs">
+      <div class="view-tab active" data-metric="revenue" onclick="setMetric('revenue',this)">Revenue</div>
+      <div class="view-tab" data-metric="qty" onclick="setMetric('qty',this)">Volume</div>
+    </div>
+    <div class="hdr-divider"></div>
+    <span class="filter-label">View</span>
+    <div class="view-tabs">
+      <div class="view-tab active" data-view="overview"  onclick="setView('overview',this)">Overview</div>
+      <div class="view-tab"        data-view="sku"        onclick="setView('sku',this)">SKU</div>
+      <div class="view-tab"        data-view="category"   onclick="setView('category',this)">Category</div>
+      <div class="view-tab"        data-view="city"       onclick="setView('city',this)">City</div>
+    </div>
+  `;
+
+  document.getElementById('loading-zone').style.display = 'none';
+  document.getElementById('filter-bar').style.display   = 'flex';
+  document.getElementById('dashboard').style.display    = 'block';
+
+  render();
+}
+
+
+function buildMsItems(id, items) { msState[id].allItems = items; renderMsList(id, ''); }
+
+function renderMsList(id, query) {
+  const state = msState[id];
+  const list  = document.getElementById(id + '-list');
+  const q     = query.toLowerCase();
+  const visible = state.allItems.filter(item => item.label.toLowerCase().includes(q));
+  list.innerHTML = visible.map(item => `
+    <div class="ms-item ${state.selected.has(item.value)?'checked':''}" onclick="toggleMsItem('${id}','${item.value.replace(/'/g,"\\'")}')">
+      <div class="ms-checkbox">${state.selected.has(item.value)?'✓':''}</div>
+      <div class="ms-item-label">${item.label}</div>
+      <div class="ms-item-count">${item.count}</div>
+    </div>
+  `).join('');
+}
+
+function filterMsItems(inp, id) { renderMsList(id, inp.value); }
+
+function toggleMsItem(id, value) {
+  const s = msState[id].selected;
+  if (s.has(value)) s.delete(value); else s.add(value);
+  renderMsList(id, ''); updateMsTrigger(id); applyFilters();
+}
+function selectAll(id) { msState[id].allItems.forEach(i => msState[id].selected.add(i.value)); renderMsList(id,''); updateMsTrigger(id); applyFilters(); }
+function clearAll(id)  { msState[id].selected.clear(); renderMsList(id,''); updateMsTrigger(id); applyFilters(); }
+
+function updateMsTrigger(id) {
+  const s = msState[id].selected;
+  const trigger = document.querySelector(`#${id} .ms-trigger`);
+  const textEl  = trigger.querySelector('.ms-trigger-text');
+  const count   = s.size, total = msState[id].allItems.length;
+  if (count === 0 || count === total) {
+    textEl.innerHTML = id==='ms-channel' ? 'All Platforms' : id==='ms-category' ? 'All Categories' : 'All';
+    trigger.classList.remove('has-selection');
+  } else {
+    const label = count === 1 ? [...s][0] : `${count} selected`;
+    textEl.innerHTML = `${label} <span class="ms-count">${count}</span>`;
+    trigger.classList.add('has-selection');
+  }
+}
+
+function toggleDropdown(id) {
+  const isOpen = document.querySelector(`#${id} .ms-dropdown, #${id}-dropdown`)?.classList.contains('open') ||
+                 document.querySelector(`#${id} .sort-dropdown`)?.classList.contains('open');
+  closeAllDropdowns();
+  if (!isOpen) {
+    const dd = document.querySelector(`#${id} .ms-dropdown`) ||
+               document.querySelector(`#${id} .sort-dropdown`) ||
+               document.getElementById(`${id}-dropdown`);
+    if (dd) dd.classList.add('open');
+    const trigger = document.querySelector(`#${id} .ms-trigger, #${id} .sort-trigger`);
+    if (trigger) trigger.classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+}
+function closeAllDropdowns() {
+  document.querySelectorAll('.ms-dropdown, .sort-dropdown').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.ms-trigger, .sort-trigger').forEach(el => el.classList.remove('open'));
+  document.getElementById('overlay').classList.remove('open');
+}
+
+// ─── Sort ───
+const SORT_OPTIONS = [
+  { key:'Rev_Ach_Pct',             label:'Rev Achievement %',   icon:'📈' },
+  { key:'Qty_Ach_Pct',             label:'Vol Achievement %',   icon:'📦' },
+  { key:'Actual_Revenue',          label:'Actual Revenue',      icon:'₹' },
+  { key:'Rev_Delta',               label:'Delta (Rev)',          icon:'△' },
+  { key:'Actual_Qty',              label:'Actual Volume',       icon:'#' },
+  { key:'Prorata_Planned_Revenue', label:'Pro-rata Plan (Rev)', icon:'🎯' },
+  { key:'Planned_Revenue',         label:'Full Plan (Rev)',     icon:'📋' },
+  { key:'LM_Revenue',              label:'Last Month Rev',      icon:'🕐' },
+  { key:'L3M_Revenue',             label:'3M Avg/Mo Revenue',   icon:'📅' },
+  { key:'SKU',                     label:'SKU (A–Z)',            icon:'🔤' },
+  { key:'Category',                label:'Category (A–Z)',      icon:'🏷' },
+  { key:'Channel',                 label:'Platform (A–Z)',      icon:'🏪' },
+];
+let sortKey = 'Rev_Ach_Pct', sortDir = 'asc';
+let skuLmMode = 'both'; // 'actual' | 'pro' | 'both' — controls LM/3M columns in SKU table
+
+function buildSortPanel() {
+  const list = document.getElementById('sort-options-list');
+  if (!list) return;
+  list.innerHTML = SORT_OPTIONS.map(opt => `
+    <div class="sort-option ${sortKey===opt.key?'active':''}" onclick="setSortKey('${opt.key}')">
+      <span class="sort-icon">${opt.icon}</span>
+      <span style="flex:1">${opt.label}</span>
+      <div class="sort-dir-btns" onclick="event.stopPropagation()">
+        <div class="sort-dir-btn ${sortKey===opt.key && sortDir==='desc'?'active':''}" onclick="setSortDir('${opt.key}','desc')">↓</div>
+        <div class="sort-dir-btn ${sortKey===opt.key && sortDir==='asc'?'active':''}" onclick="setSortDir('${opt.key}','asc')">↑</div>
+      </div>
+    </div>`).join('');
+}
+function setSortKey(key) { sortKey=key; buildSortPanel(); updateSortTrigger(); applySort(); if(currentView==='sku') renderSKUTable(); else render(); }
+function setSortDir(key, dir) { sortKey=key; sortDir=dir; buildSortPanel(); updateSortTrigger(); applySort(); if(currentView==='sku') renderSKUTable(); else render(); }
+function updateSortTrigger() {
+  const opt = SORT_OPTIONS.find(o => o.key===sortKey);
+  const el = document.getElementById('sort-trigger-text');
+  if (el) el.textContent = (opt?opt.label:sortKey) + (sortDir==='desc'?' ↓':' ↑');
+  document.getElementById('sort-trigger')?.classList.toggle('active', true);
+}
+function applySort() {
+  // Determine sort type from first non-null value in filtered data
+  const sample = filtered.find(r => r[sortKey] != null)?.[sortKey];
+  const isStr = typeof sample === 'string';
+  filtered.sort((a,b) => {
+    const va = a[sortKey] ?? (isStr ? '' : 0);
+    const vb = b[sortKey] ?? (isStr ? '' : 0);
+    if (isStr) return sortDir==='asc' ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    return sortDir==='asc' ? va-vb : vb-va;
+  });
+  currentPage = 1;
+}
+
+// ─── Active filter chips ───
+function renderActiveFilters() {
+  const container = document.getElementById('active-filters');
+  if (!container) return;
+  const chips = [];
+  msState['ms-channel'].selected.forEach(v  => chips.push({label:v, id:'ms-channel', value:v, color:chColor(v)}));
+  msState['ms-category'].selected.forEach(v => chips.push({label:v, id:'ms-category', value:v, color:'var(--forest-mid)'}));
+  msState['ms-ach'].selected.forEach(v => {
+    const b = ACH_BUCKETS.find(x => x.key===v);
+    chips.push({label:b?.label||v, id:'ms-ach', value:v, color:b?.color||'var(--terra)'});
+  });
+  if (!chips.length) { container.innerHTML=''; return; }
+  container.innerHTML = chips.map(c => `
+    <div class="active-chip" style="border:1px solid ${c.color}44;color:${c.color};background:${c.color}18">
+      ${c.label}
+      <span class="remove" onclick="removeChip('${c.id}','${c.value.replace(/'/g,"\\'")}')">×</span>
+    </div>
+  `).join('') + (chips.length>1 ? `<button class="clear-all-btn" onclick="clearAllFilters()">Clear all</button>` : '');
+}
+function removeChip(id, value) { msState[id].selected.delete(value); renderMsList(id,''); updateMsTrigger(id); applyFilters(); }
+function clearAllFilters() { ['ms-channel','ms-category','ms-ach'].forEach(id=>{ msState[id].selected.clear(); renderMsList(id,''); updateMsTrigger(id); }); applyFilters(); }
+
+// ─── Apply filters ───
+function applyFilters() {
+  const selCh  = msState['ms-channel'].selected;
+  const selCat = msState['ms-category'].selected;
+  const selAch = msState['ms-ach'].selected;
+  const totCh  = msState['ms-channel'].allItems.length;
+  const totCat = msState['ms-category'].allItems.length;
+  filtered = ALL_DATA.filter(r => {
+    if (selCh.size>0  && selCh.size<totCh   && !selCh.has(r.Channel))   return false;
+    if (selCat.size>0 && selCat.size<totCat  && !selCat.has(r.Category)) return false;
+    if (selAch.size>0) { const p=currentMetric==='revenue'?r.Rev_Ach_Pct:r.Qty_Ach_Pct; if (!selAch.has(achBucket(p))) return false; }
+    if (tableSearchVal) { if (!(r.SKU+r.Category+r.Channel).toLowerCase().includes(tableSearchVal)) return false; }
+    return true;
+  });
+  const catCounts={};
+  filtered.forEach(r => { catCounts[r.Category]=(catCounts[r.Category]||0)+1; });
+  msState['ms-category'].allItems = msState['ms-category'].allItems.map(i => ({...i, count:catCounts[i.value]||0}));
+  renderMsList('ms-category', '');
+  applySort(); renderActiveFilters(); currentPage=1; render();
+}
+
+function setMetric(m, el) {
+  currentMetric = m;
+  document.querySelectorAll('[data-metric]').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+function setView(v, el) {
+  currentView = v;
+  document.querySelectorAll('[data-view]').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+// ─── Aggregate ───
+function aggregate(key) {
+  const map = {};
+  filtered.forEach(r => {
+    const k = r[key] || 'Unknown';
+    if (!map[k]) map[k] = {key:k,plan_rev:0,plan_qty:0,prorata_rev:0,prorata_qty:0,actual_rev:0,actual_qty:0,lm_rev:0,lm_qty:0,l3m_rev:0,l3m_qty:0,lm_rev_pro:0,lm_qty_pro:0,l3m_rev_pro:0,l3m_qty_pro:0};
+    const m = map[k];
+    const pr = r._proRatio || 1;
+    m.plan_rev    += r.Planned_Revenue||0;
+    m.plan_qty    += r.Planned_Qty||0;
+    m.prorata_rev += r.Prorata_Planned_Revenue||0;
+    m.prorata_qty += r.Prorata_Planned_Qty||0;
+    m.actual_rev  += r.Actual_Revenue||0;
+    m.actual_qty  += r.Actual_Qty||0;
+    m.lm_rev      += r.LM_Revenue||0;
+    m.lm_qty      += r.LM_Qty||0;
+    m.l3m_rev     += (r.L3M_Revenue||0)/3;  // monthly avg
+    m.l3m_qty     += (r.L3M_Qty||0)/3;
+    m.lm_rev_pro  += (r.LM_Revenue||0) * pr;
+    m.lm_qty_pro  += (r.LM_Qty||0) * pr;
+    m.l3m_rev_pro += (r.L3M_Revenue||0)/3 * pr;
+    m.l3m_qty_pro += (r.L3M_Qty||0)/3 * pr;
+  });
+  return Object.values(map).map(m => ({...m,
+    rev_ach: m.prorata_rev>0 ? m.actual_rev/m.prorata_rev*100 : 0,
+    qty_ach: m.prorata_qty>0 ? m.actual_qty/m.prorata_qty*100 : 0,
+  }));
+}
+
+// ─── Render router ───
+function render() {
+  const c = document.getElementById('main-content');
+  if (!c) return;
+  if      (currentView==='overview')  renderOverview(c);
+  else if (currentView==='sku')       renderSKUView(c);
+  else if (currentView==='city')      renderCityView(c);
+  else                                 renderCategoryView(c);
+  const rb = document.getElementById('rec-badge');
+  if (rb) rb.textContent = filtered.length + ' rows';
+}
+
+// ─── OVERVIEW ───
+function renderOverview(c) {
+  const byChannel = aggregate('Channel').sort((a,b)=>b.actual_rev-a.actual_rev);
+  const totRev    = byChannel.reduce((s,x)=>s+x.actual_rev,0);
+  const totProRev = byChannel.reduce((s,x)=>s+x.prorata_rev,0);
+  const totPlanRev= byChannel.reduce((s,x)=>s+x.plan_rev,0);
+  const totQty    = byChannel.reduce((s,x)=>s+x.actual_qty,0);
+  const totProQty = byChannel.reduce((s,x)=>s+x.prorata_qty,0);
+  const totLmRev    = filtered.reduce((s,r)=>s+r.LM_Revenue,0);
+  const totLmRevPro = filtered.reduce((s,r)=>s+(r.LM_Revenue*(r._proRatio||1)),0);
+  const totL3mRev   = filtered.reduce((s,r)=>s+r.L3M_Revenue/3,0);      // monthly avg
+  const totL3mRevPro= filtered.reduce((s,r)=>s+(r.L3M_Revenue/3*(r._proRatio||1)),0);
+  const totLmQtyPro = filtered.reduce((s,r)=>s+(r.LM_Qty*(r._proRatio||1)),0);
+  const tot3mQtyPro = filtered.reduce((s,r)=>s+(r.L3M_Qty/3*(r._proRatio||1)),0);
+  const revAch    = totProRev>0 ? totRev/totProRev*100 : 0;
+  const qtyAch    = totProQty>0 ? totQty/totProQty*100 : 0;
+
+  c.innerHTML = `
+    <div class="summary-grid">
+      ${summaryCard('Total Revenue',     fmt(totRev),   revAch, 'Pro-rata: '+fmt(totProRev),      'var(--terra)')}
+      ${summaryCard('Pro-rata Plan',     fmt(totProRev),null,   'Full month: '+fmt(totPlanRev),   'var(--muted)')}
+      ${summaryCard('Actual Volume',     fmtQ(totQty),  qtyAch, 'Pro-rata: '+fmtQ(totProQty),     'var(--forest)')}
+      ${summaryCard('vs Last Month',     totLmRevPro>0?fmtPct(totRev/totLmRevPro*100):'—',null,'LM pro-rated: '+fmt(totLmRevPro),totRev>=totLmRevPro?'var(--green)':'var(--red)')}
+      ${summaryCard('vs 3M Avg',         totL3mRevPro>0?fmtPct(totRev/totL3mRevPro*100):'—',null,'3M avg pro-rated: '+fmt(totL3mRevPro),totRev>=totL3mRevPro?'var(--green)':'var(--red)')}
+      ${summaryCard('SKUs Active',       filtered.filter(r=>r.Actual_Revenue>0).length+'',null,'of '+filtered.length+' total','var(--terra-light)')}
+    </div>
+    <div class="section-title">Platform Performance</div>
+    <div class="channel-grid">${byChannel.map(ch=>renderChannelCard(ch)).join('')}</div>
+  `;
+  const dateMap={};
+  ALL_DATA.forEach(r => { dateMap[r.Channel]=r['Actual Sales Updated Till']; });
+  Object.entries(dateMap).forEach(([ch,dt]) => {
+    const el = document.getElementById('ch-date-'+ch.replace(/ /g,'_'));
+    if (el) { try { const d=typeof dt==='number'?new Date(XLSX.SSF.parse_date_code(dt).y,XLSX.SSF.parse_date_code(dt).m-1,XLSX.SSF.parse_date_code(dt).d):new Date(dt); el.textContent=isNaN(d)?dt:'Till '+d.toLocaleDateString('en-IN'); } catch(e){ el.textContent=dt; } }
+  });
+}
+
+function summaryCard(label, value, achPct, sub, accentColor) {
+  const achHTML = achPct!=null ? `
+    <div class="card-sub">
+      <span class="card-ach" style="color:${achColor(achPct)}">${fmtPct(achPct)}</span>
+      <span class="card-plan">of pro-rata</span>
+    </div>
+    <div class="ach-bar"><div class="ach-bar-fill" style="width:${Math.min(achPct,100)}%;background:${achColor(achPct)}"></div></div>
+  ` : `<div class="card-sub"><span class="card-plan">${sub}</span></div>`;
+  return `<div class="summary-card" style="--card-accent:${accentColor}">
+    <style>.summary-card[style*='${accentColor}']::before{background:${accentColor}}</style>
+    <div class="card-label">${label}</div>
+    <div class="card-value" style="color:${accentColor}">${value}</div>
+    ${achHTML}
+  </div>`;
+}
+
+function renderChannelCard(ch) {
+  const m = currentMetric;
+  const pct    = m==='revenue'?ch.rev_ach:ch.qty_ach;
+  const actual = m==='revenue'?ch.actual_rev:ch.actual_qty;
+  const prorata= m==='revenue'?ch.prorata_rev:ch.prorata_qty;
+  const plan   = m==='revenue'?ch.plan_rev:ch.plan_qty;
+  const lm     = m==='revenue'?ch.lm_rev:ch.lm_qty;
+  const fmtFn  = m==='revenue'?fmt:fmtQ;
+  const color  = chColor(ch.key);
+  const safeKey= ch.key.replace(/ /g,'_');
+  return `<div class="channel-card" style="position:relative" onclick="drillChannel('${ch.key}')">
+    <button class="ch-intel-btn" title="Channel Intelligence" onclick="event.stopPropagation();openIntelModal('${ch.key}')">i</button>
+    <div class="ch-header" style="padding-right:28px">
+      <div class="ch-name" style="color:${color}">${ch.key}</div>
+      <div class="ch-date" id="ch-date-${safeKey}"></div>
+    </div>
+    <div class="ch-metrics">
+      <div>
+        <div class="ch-metric-label">Actual</div>
+        <div class="ch-metric-val">${fmtFn(actual)}</div>
+        <div class="ch-metric-sub">Pro-rata: ${fmtFn(prorata)}</div>
+      </div>
+      <div>
+        <div class="ch-metric-label">Achievement</div>
+        <div class="ch-metric-val" style="color:${achColor(pct)}">${fmtPct(pct)}</div>
+        <div class="ch-metric-sub">Full plan: ${fmtFn(plan)}</div>
+      </div>
+      <div>
+        <div class="ch-metric-label">vs LM</div>
+        <div class="ch-metric-val" style="color:${actual>=lm?'var(--green)':'var(--red)'}">${lm>0?fmtPct(actual/lm*100):'—'}</div>
+        <div class="ch-metric-sub">LM: ${fmtFn(lm)}</div>
+      </div>
+    </div>
+    <div class="ch-bar"><div class="ch-bar-fill" style="width:${Math.min(pct,100)}%;background:${achColor(pct)}"></div></div>
+  </div>`;
+}
+
+function drillChannel(ch) {
+  msState['ms-channel'].selected.clear(); msState['ms-channel'].selected.add(ch);
+  updateMsTrigger('ms-channel'); renderMsList('ms-channel','');
+  setView('category', document.querySelector('[data-view="category"]'));
+  applyFilters();
+}
+function drillCat(cat) {
+  msState['ms-category'].selected.clear(); msState['ms-category'].selected.add(cat);
+  updateMsTrigger('ms-category'); renderMsList('ms-category','');
+  setView('sku', document.querySelector('[data-view="sku"]'));
+  applyFilters();
+}
+
+// ─── SKU TABLE ───
+function renderSKUView(c) {
+  const modes = [{key:'actual',label:'Actual'},{key:'pro',label:'Pro-rated'},{key:'both',label:'Both'}];
+  const toggleHtml = modes.map(mo=>`<button class="lm-toggle-btn ${skuLmMode===mo.key?'active':''}" onclick="setSkuLmMode('${mo.key}')">${mo.label}</button>`).join('');
+  c.innerHTML = `
+    <div class="table-section">
+      <div class="table-header">
+        <div class="table-title">SKU Detail — <span id="sku-count">${filtered.length}</span> rows</div>
+        <div class="table-search-wrap">
+          <input class="table-search" id="table-search" placeholder="Search SKU / Category…" value="${tableSearchVal}" oninput="onTableSearch(this.value)">
+        </div>
+        <div class="sku-lm-toggle-wrap">
+          <span class="lm-toggle-label" style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">LM / 3M:</span>
+          ${toggleHtml}
+        </div>
+      </div>
+      <div class="table-wrap" id="sku-table-body"></div>
+      <div class="pagination" id="sku-pagination"></div>
+    </div>
+  `;
+  renderSKUTable();
+}
+function onTableSearch(val) { tableSearchVal=val.toLowerCase(); applyFilters(); document.getElementById('table-search')?.focus(); }
+
+// TABLE_COLS is now dynamic — built inside renderSKUTable based on skuLmMode
+function getTableCols() {
+  const base = [
+    {key:'Channel',                 label:'Platform',   numeric:false},
+    {key:'SKU',                     label:'SKU',         numeric:false},
+    {key:'Category',                label:'Category',    numeric:false},
+    {key:'Prorata_Planned_Revenue', label:'Prorata Rev', numeric:true},
+    {key:'Actual_Revenue',          label:'Actual Rev',  numeric:true},
+    {key:'Rev_Ach_Pct',             label:'Rev Ach%',    numeric:true},
+    {key:'Rev_Delta',               label:'Delta (Rev)', numeric:true},
+    {key:'Prorata_Planned_Qty',     label:'Prorata Qty', numeric:true},
+    {key:'Actual_Qty',              label:'Actual Qty',  numeric:true},
+    {key:'Qty_Ach_Pct',             label:'Qty Ach%',    numeric:true},
+    {key:'Planned_Revenue',         label:'Full Plan',   numeric:true},
+  ];
+  const showAct = skuLmMode === 'actual' || skuLmMode === 'both';
+  const showPro = skuLmMode === 'pro'    || skuLmMode === 'both';
+  if (showAct) base.push({key:'LM_Revenue',   label:'LM Actual',   numeric:true, _lmType:'act'});
+  if (showPro) base.push({key:'LM_Revenue',   label:'LM (pro)',     numeric:true, _lmType:'pro'});
+  if (showAct) base.push({key:'L3M_Revenue',  label:'3M Actual',   numeric:true, _l3mType:'act'});
+  if (showPro) base.push({key:'L3M_Revenue',  label:'3M (pro)',     numeric:true, _l3mType:'pro'});
+  return base;
+}
+function setSkuLmMode(mode) { skuLmMode = mode; renderSKUView(document.getElementById('main-content')); }
+
+function renderSKUTable() {
+  const start = (currentPage-1)*PAGE_SIZE;
+  const page  = filtered.slice(start, start+PAGE_SIZE);
+  const totalPages = Math.ceil(filtered.length/PAGE_SIZE);
+  const TABLE_COLS = getTableCols();
+  const colCount = TABLE_COLS.length;
+  // Build header — give each col a unique index so sort still works on the base key
+  const thHtml = TABLE_COLS.map((col,ci) => {
+    const isActive = sortKey===col.key && !(col._lmType||col._l3mType);
+    const arrow = isActive?(sortDir==='asc'?'↑':'↓'):'↕';
+    const clickable = !col._lmType && !col._l3mType;
+    return `<th class="${isActive?'sort-active':''}" ${clickable?`onclick="clickColSort('${col.key}')"`:''}
+      title="${col._lmType==='pro'||col._l3mType==='pro'?'Pro-rated to same day-in-month as MTD':''}">
+      <div class="th-inner">${col.label} <span class="sort-arrow">${clickable?arrow:''}</span></div></th>`;
+  }).join('');
+  const showActLm = skuLmMode === 'actual' || skuLmMode === 'both';
+  const showProLm = skuLmMode === 'pro'    || skuLmMode === 'both';
+  const rows = page.map(r => {
+    const color    = chColor(r.Channel);
+    const skuCode  = (r.SKU_CODE || r.SKU || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const skuDisp  = (r.SKU || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const safeCh   = (r.Channel  || '').replace(/'/g,"\\'");
+    const safeCat  = (r.Category || '').replace(/'/g,"\\'");
+    const delta    = r.Actual_Revenue - r.Prorata_Planned_Revenue;
+    const hasPerfCh = PERF_LOADED && PERF_DATA.some(p => p.Platform.toLowerCase() === r.Channel.toLowerCase());
+    let dotColor = 'grey';
+    if (PERF_LOADED && hasPerfCh) {
+      const skc = r.SKU_CODE || r.SKU;
+      const pm  = PERF_DATA.find(p => p.Platform.toLowerCase()===r.Channel.toLowerCase() && p.SKU_CODE.toLowerCase()===skc.toLowerCase() && p.Time==='MTD');
+      const lm  = PERF_DATA.find(p => p.Platform.toLowerCase()===r.Channel.toLowerCase() && p.SKU_CODE.toLowerCase()===skc.toLowerCase() && p.Time==='LFM');
+      if (pm && lm && lm.GrossUnits > 0) {
+        const tr = pm.GrossUnits / lm.GrossUnits * 100;
+        dotColor = tr >= 95 ? 'green' : tr >= 75 ? 'amber' : 'red';
+      } else if (pm) { dotColor = 'amber'; }
+    }
+    const perfDot = (PERF_LOADED && hasPerfCh)
+      ? `<span class="perf-dot ${dotColor}" title="Traffic vs LFM"></span>` : '';
+    const rowIdx = ALL_DATA.indexOf(r);
+    return `<tr style="cursor:pointer" data-row-idx="${rowIdx}" onclick="openPerfPanelByIdx(this)">
+      <td onclick="event.stopPropagation()"><span class="channel-tag" style="background:${color}22;color:${color}">${r.Channel}</span></td>
+      <td>${perfDot}<span class="sku-tag">${r.SKU}</span></td>
+      <td onclick="event.stopPropagation()"><span class="cat-tag" style="cursor:pointer" onclick="drillCat('${safeCat}')">${r.Category}</span></td>
+      <td class="num">${fmt(r.Prorata_Planned_Revenue)}</td>
+      <td class="num">${fmt(r.Actual_Revenue)}</td>
+      <td><span class="ach-pill ${achClass(r.Rev_Ach_Pct)}">${fmtPct(r.Rev_Ach_Pct)}</span></td>
+      <td class="num" style="color:${delta>=0?'var(--green)':'var(--red)'};font-weight:600">${delta>=0?'+':''}${fmt(delta)}</td>
+      <td class="num">${fmtQ(r.Prorata_Planned_Qty)}</td>
+      <td class="num">${fmtQ(r.Actual_Qty)}</td>
+      <td><span class="ach-pill ${achClass(r.Qty_Ach_Pct)}">${fmtPct(r.Qty_Ach_Pct)}</span></td>
+      <td class="num-muted">${fmt(r.Planned_Revenue)}</td>
+      ${showActLm ? `<td class="num-muted">${fmt(r.LM_Revenue)}</td>` : ''}
+      ${showProLm ? `<td class="num-muted" style="color:var(--teal)">${fmt(r.LM_Revenue * (r._proRatio||1))}</td>` : ''}
+      ${showActLm ? `<td class="num-muted">${fmt(r.L3M_Revenue/3)}</td>` : ''}
+      ${showProLm ? `<td class="num-muted" style="color:var(--teal)">${fmt(r.L3M_Revenue/3 * (r._proRatio||1))}</td>` : ''}
+    </tr>`;
+  }).join('');
+
+  // Grand total row
+  const selCat = msState['ms-category'].selected;
+  const showTotal = filtered.length > 0 && (selCat.size > 1 || tableSearchVal || selCat.size === 0);
+  let totalRow = '';
+  if (showTotal) {
+    const tot = {
+      proRev:    filtered.reduce((s,r)=>s+r.Prorata_Planned_Revenue,0),
+      actRev:    filtered.reduce((s,r)=>s+r.Actual_Revenue,0),
+      delta:     filtered.reduce((s,r)=>s+r.Rev_Delta,0),
+      proQty:    filtered.reduce((s,r)=>s+r.Prorata_Planned_Qty,0),
+      actQty:    filtered.reduce((s,r)=>s+r.Actual_Qty,0),
+      planRev:   filtered.reduce((s,r)=>s+r.Planned_Revenue,0),
+      lmActRev:  filtered.reduce((s,r)=>s+r.LM_Revenue,0),
+      lmProRev:  filtered.reduce((s,r)=>s+r.LM_Revenue*(r._proRatio||1),0),
+      l3mActRev: filtered.reduce((s,r)=>s+r.L3M_Revenue/3,0),
+      l3mProRev: filtered.reduce((s,r)=>s+r.L3M_Revenue/3*(r._proRatio||1),0),
+    };
+    const totRevAch = tot.proRev > 0 ? tot.actRev/tot.proRev*100 : 0;
+    const totQtyAch = tot.proQty > 0 ? tot.actQty/tot.proQty*100 : 0;
+    totalRow = `<tr style="background:var(--cream-mid);font-weight:700;border-top:2px solid var(--terra-light)">
+      <td colspan="3" style="text-align:left;color:var(--terra);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.05em">GRAND TOTAL (${filtered.length} SKUs)</td>
+      <td class="num">${fmt(tot.proRev)}</td>
+      <td class="num">${fmt(tot.actRev)}</td>
+      <td><span class="ach-pill ${achClass(totRevAch)}">${fmtPct(totRevAch)}</span></td>
+      <td class="num" style="color:${tot.delta>=0?'var(--green)':'var(--red)'};font-weight:700">${tot.delta>=0?'+':''}${fmt(tot.delta)}</td>
+      <td class="num">${fmtQ(tot.proQty)}</td>
+      <td class="num">${fmtQ(tot.actQty)}</td>
+      <td><span class="ach-pill ${achClass(totQtyAch)}">${fmtPct(totQtyAch)}</span></td>
+      <td class="num-muted">${fmt(tot.planRev)}</td>
+      ${showActLm ? `<td class="num-muted">${fmt(tot.lmActRev)}</td>` : ''}
+      ${showProLm ? `<td class="num-muted" style="color:var(--teal)">${fmt(tot.lmProRev)}</td>` : ''}
+      ${showActLm ? `<td class="num-muted">${fmt(tot.l3mActRev)}</td>` : ''}
+      ${showProLm ? `<td class="num-muted" style="color:var(--teal)">${fmt(tot.l3mProRev)}</td>` : ''}
+    </tr>`;
+  }
+
+  const wrap = document.getElementById('sku-table-body');
+  if (wrap) wrap.innerHTML = `<table><thead><tr>${thHtml}</tr></thead><tbody>${rows||'<tr><td colspan="13" class="no-data">No matching records</td></tr>'}${totalRow}</tbody></table>`;
+
+  const pag = document.getElementById('sku-pagination');
+  if (!pag) return;
+  const showing = `Showing ${start+1}–${Math.min(start+PAGE_SIZE,filtered.length)} of ${filtered.length}`;
+  let btns='', sp=Math.max(1,currentPage-3), ep=Math.min(totalPages,sp+6);
+  if (ep-sp<6) sp=Math.max(1,ep-6);
+  for (let i=sp;i<=ep;i++) btns+=`<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  pag.innerHTML = `<span>${showing}</span>
+    <div class="page-btns">
+      <button class="page-btn" onclick="goPage(1)" ${currentPage===1?'disabled':''}>«</button>
+      <button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>
+      ${btns}
+      <button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>›</button>
+      <button class="page-btn" onclick="goPage(${totalPages})" ${currentPage===totalPages?'disabled':''}>»</button>
+    </div>`;
+  const cnt = document.getElementById('sku-count');
+  if (cnt) cnt.textContent = filtered.length;
+}
+
+function clickColSort(key) {
+  if (sortKey===key) sortDir=sortDir==='asc'?'desc':'asc'; else {sortKey=key; sortDir='desc';}
+  buildSortPanel(); updateSortTrigger(); applySort(); renderSKUTable();
+}
+function goPage(p) {
+  currentPage=Math.max(1,Math.min(p,Math.ceil(filtered.length/PAGE_SIZE)));
+  renderSKUTable();
+  document.getElementById('sku-table-body')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ─── CATEGORY VIEW ───
+let catPanelSort = {key:'actual',dir:'desc'};
+let lmDisplayMode = 'both'; // 'actual' | 'pro' | 'both'
+let chPanelSort  = {key:'actual',dir:'desc'};
+const CAT_SORT_OPTS = [
+  {key:'actual',  label:'Actual'        },
+  {key:'prorata', label:'Pro-rata Plan' },
+  {key:'ach',     label:'Achievement %' },
+  {key:'delta',   label:'Delta'         },
+  {key:'name',    label:'Name (A–Z)'    },
+];
+function sortCatRows(rows, state, m) {
+  const {key,dir} = state;
+  return [...rows].sort((a,b) => {
+    let va,vb;
+    if (key==='actual')  {va=m==='revenue'?a.actual_rev:a.actual_qty;  vb=m==='revenue'?b.actual_rev:b.actual_qty;}
+    else if(key==='prorata'){va=m==='revenue'?a.prorata_rev:a.prorata_qty;vb=m==='revenue'?b.prorata_rev:b.prorata_qty;}
+    else if(key==='ach')   {va=m==='revenue'?a.rev_ach:a.qty_ach; vb=m==='revenue'?b.rev_ach:b.qty_ach;}
+    else if(key==='delta') {va=(m==='revenue'?a.actual_rev:a.actual_qty)-(m==='revenue'?a.prorata_rev:a.prorata_qty); vb=(m==='revenue'?b.actual_rev:b.actual_qty)-(m==='revenue'?b.prorata_rev:b.prorata_qty);}
+    else if(key==='lm')    {va=m==='revenue'?a.lm_rev:a.lm_qty;   vb=m==='revenue'?b.lm_rev:b.lm_qty;}
+    else if(key==='l3m')  {va=m==='revenue'?a.l3m_rev:a.l3m_qty; vb=m==='revenue'?b.l3m_rev:b.l3m_qty;}
+    else {va=a.key; vb=b.key;}
+    if(typeof va==='string') return dir==='asc'?va.localeCompare(vb):vb.localeCompare(va);
+    return dir==='asc'?va-vb:vb-va;
+  });
+}
+function buildCatSortBar(panelId, state) {
+  return `<div class="cat-sort-bar">${CAT_SORT_OPTS.map(o=>{
+    const isActive=state.key===o.key;
+    return `<button class="cat-sort-btn ${isActive?'active':''}" onclick="${panelId}SortBy('${o.key}')">${o.label}${isActive?`<span class="cat-sort-dir">${state.dir==='desc'?'↓':'↑'}</span>`:''}</button>`;
+  }).join('')}</div>`;
+}
+function chSortBy(key) { if(chPanelSort.key===key)chPanelSort.dir=chPanelSort.dir==='desc'?'asc':'desc'; else{chPanelSort.key=key;chPanelSort.dir='desc';} renderCategoryView(document.getElementById('main-content')); }
+function catSortBy(key){ if(catPanelSort.key===key)catPanelSort.dir=catPanelSort.dir==='desc'?'asc':'desc'; else{catPanelSort.key=key;catPanelSort.dir='desc';} renderCategoryView(document.getElementById('main-content')); }
+
+function setLmMode(mode) {
+  lmDisplayMode = mode;
+  renderCategoryView(document.getElementById('main-content'));
+}
+
+function buildLmToggle() {
+  const modes = [{key:'actual',label:'Actual'},{key:'pro',label:'Pro-rated'},{key:'both',label:'Both'}];
+  return `<div class="lm-toggle-wrap">
+    <span class="lm-toggle-label">LM / 3M view:</span>
+    ${modes.map(m=>`<button class="lm-toggle-btn ${lmDisplayMode===m.key?'active':''}" onclick="setLmMode('${m.key}')">${m.label}</button>`).join('')}
+  </div>`;
+}
+
+function renderCategoryView(c) {
+  const byChannel = aggregate('Channel');
+  const byCat     = aggregate('Category');
+  const m = currentMetric;
+  const getAch    = r => m==='revenue'?r.rev_ach:r.qty_ach;
+  const getActual = r => m==='revenue'?r.actual_rev:r.actual_qty;
+  const getPro    = r => m==='revenue'?r.prorata_rev:r.prorata_qty;
+  const getLmAct  = r => m==='revenue'?r.lm_rev:r.lm_qty;
+  const getL3mAct = r => m==='revenue'?r.l3m_rev:r.l3m_qty;
+  const getLmPro  = r => m==='revenue'?r.lm_rev_pro:r.lm_qty_pro;
+  const getL3mPro = r => m==='revenue'?r.l3m_rev_pro:r.l3m_qty_pro;
+  // Active getter used for sorting/bar (whichever is shown; pro when pro-only, act otherwise)
+  const getLm     = r => lmDisplayMode==='pro' ? getLmPro(r) : getLmAct(r);
+  const getL3m    = r => lmDisplayMode==='pro' ? getL3mPro(r) : getL3mAct(r);
+  const fmtFn = m==='revenue'?fmt:fmtQ;
+  const sortedCh  = sortCatRows(byChannel, chPanelSort,  m);
+  const sortedCat = sortCatRows(byCat,     catPanelSort, m);
+  const maxActCat = Math.max(...byCat.map(r=>getActual(r)),1);
+  const maxActCh  = Math.max(...byChannel.map(r=>getActual(r)),1);
+  const showAct = lmDisplayMode === 'actual' || lmDisplayMode === 'both';
+  const showPro = lmDisplayMode === 'pro'    || lmDisplayMode === 'both';
+  const nineCols = lmDisplayMode === 'both';
+
+  const barFor=(r,state,maxA)=>{
+    const k=state.key;
+    if(k==='ach')    return {val:Math.min(getAch(r),100),    color:achColor(getAch(r))};
+    if(k==='lm')     return {val:getLm(r)/maxA*100,          color:'var(--teal)'};
+    if(k==='l3m')    return {val:getL3m(r)/maxA*100,         color:'var(--teal)'};
+    if(k==='prorata')return {val:getPro(r)/maxA*100,          color:'var(--terra-light)'};
+    return {val:getActual(r)/maxA*100, color:'var(--forest-mid)'};
+  };
+  const extraFor=(r,state)=>{
+    if(state.key==='lm')  return {val:fmtFn(getLm(r)),  label:'LM'};
+    if(state.key==='l3m') return {val:fmtFn(getL3m(r)), label:'3M Avg'};
+    return null;
+  };
+
+  // Build the 5 fixed cols + conditional LM/3M cols + Ach%
+  function catNumsHtml(row, planKey) {
+    const pct=getAch(row), a=getActual(row), p=getPro(row);
+    return `<div class="cat-nums${nineCols?' nine-col':''}">
+      <div class="cat-num"><span class="cat-num-val">${fmtFn(a)}</span><span class="cat-num-label">Actual</span></div>
+      <div class="cat-num"><span class="cat-num-val" style="color:var(--muted)">${fmtFn(p)}</span><span class="cat-num-label">Pro-rata</span></div>
+      <div class="cat-num"><span class="cat-num-val" style="color:${(a-p)>=0?'var(--green)':'var(--red)'}">${(a-p)>=0?'+':''}${fmtFn(Math.abs(a-p))}</span><span class="cat-num-label">Delta</span></div>
+      <div class="cat-num"><span class="cat-num-val" style="color:var(--brown-mid)">${fmtFn(planKey)}</span><span class="cat-num-label">Full Plan</span></div>
+      ${showAct ? `<div class="cat-num"><span class="cat-num-val" style="color:var(--muted)">${fmtFn(getLmAct(row))}</span><span class="cat-num-label">LM Actual</span></div>` : ''}
+      ${showPro ? `<div class="cat-num"><span class="cat-num-val" style="color:var(--teal)">${fmtFn(getLmPro(row))}</span><span class="cat-num-label">LM (pro)</span></div>` : ''}
+      ${showAct ? `<div class="cat-num"><span class="cat-num-val" style="color:var(--muted)">${fmtFn(getL3mAct(row))}</span><span class="cat-num-label">3M Actual</span></div>` : ''}
+      ${showPro ? `<div class="cat-num"><span class="cat-num-val" style="color:var(--teal)">${fmtFn(getL3mPro(row))}</span><span class="cat-num-label">3M (pro)</span></div>` : ''}
+      <div class="cat-num"><span class="cat-num-val" style="color:${achColor(pct)}">${fmtPct(pct)}</span><span class="cat-num-label">Ach%</span></div>
+    </div>`;
+  }
+
+  const toggleHtml = buildLmToggle();
+
+  c.innerHTML = `<div class="two-col">
+    <div class="table-section">
+      <div class="table-header"><div class="table-title">By Platform <span style="color:var(--muted);font-size:10px;font-weight:400">(${sortedCh.length})</span></div></div>
+      ${buildCatSortBar('ch', chPanelSort)}
+      ${toggleHtml}
+      <div style="padding:8px 16px;max-height:500px;overflow-y:auto">
+        ${sortedCh.map((ch,i)=>{
+          const pct=getAch(ch), a=getActual(ch), p=getPro(ch);
+          const color=chColor(ch.key), bar=barFor(ch,chPanelSort,maxActCh), ex=extraFor(ch,chPanelSort);
+          return `<div class="cat-row" onclick="drillChannel('${ch.key}')">
+            <div class="cat-row-header">
+              <span style="min-width:18px;color:var(--muted);font-size:9px;font-family:'JetBrains Mono',monospace;text-align:right">${i+1}</span>
+              <span class="cat-row-name" style="color:${color}">${ch.key}</span>
+              <div class="mini-bar-wrap"><div class="mini-bar"><div class="mini-bar-fill" style="width:${bar.val.toFixed(1)}%;background:${bar.color}"></div></div></div>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${achColor(pct)}">${fmtPct(pct)}</span>
+            </div>
+            ${catNumsHtml(ch, m==='revenue'?ch.plan_rev:ch.plan_qty)}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="table-section">
+      <div class="table-header"><div class="table-title">By Category <span style="color:var(--muted);font-size:10px;font-weight:400">(${sortedCat.length})</span></div></div>
+      ${buildCatSortBar('cat', catPanelSort)}
+      ${toggleHtml}
+      <div style="padding:8px 16px;max-height:500px;overflow-y:auto">
+        ${sortedCat.map((cat,i)=>{
+          const pct=getAch(cat), a=getActual(cat), p=getPro(cat);
+          const bar=barFor(cat,catPanelSort,maxActCat), ex=extraFor(cat,catPanelSort);
+          const safeCat=cat.key.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"');
+          return `<div class="cat-row" onclick="drillCat('${safeCat}')">
+            <div class="cat-row-header">
+              <span style="min-width:18px;color:var(--muted);font-size:9px;font-family:'JetBrains Mono',monospace;text-align:right">${i+1}</span>
+              <span class="cat-row-name"><span class="cat-tag" style="white-space:nowrap">${cat.key}</span></span>
+              <div class="mini-bar-wrap"><div class="mini-bar"><div class="mini-bar-fill" style="width:${bar.val.toFixed(1)}%;background:${bar.color}"></div></div></div>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${achColor(pct)}">${fmtPct(pct)}</span>
+            </div>
+            ${catNumsHtml(cat, m==='revenue'?cat.plan_rev:cat.plan_qty)}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ─── CITY VIEW ───
+const citySortState = {}, cityShowAll = {}, cityCollapsed = {};
+const CITY_SORT_OPTS = [
+  {key:'actual',    label:'Actual'},
+  {key:'lfmPro',    label:'LFM Pro'},
+  {key:'l3mPro',    label:'L3M Pro'},
+  {key:'lmActual',  label:'LM Actual'},
+  {key:'l3mActual', label:'L3M Actual'},
+  {key:'vsLfmPro',  label:'vs LFM'},
+  {key:'vsL3mPro',  label:'vs L3M'},
+  {key:'City',      label:'City A–Z'},
+];
+function getCitySortState(ch) { if(!citySortState[ch]) citySortState[ch]={key:'actual',dir:'desc'}; return citySortState[ch]; }
+function setCitySort(ch,key) { const s=getCitySortState(ch); if(s.key===key)s.dir=s.dir==='desc'?'asc':'desc'; else{s.key=key;s.dir='desc';} renderCityView(document.getElementById('main-content')); }
+function toggleCityShowAll(ch) { cityShowAll[ch]=!cityShowAll[ch]; renderCityView(document.getElementById('main-content')); }
+function toggleCityCard(ch) {
+  cityCollapsed[ch] = cityCollapsed[ch] === false ? true : false;
+  renderCityView(document.getElementById('main-content'));
+}
+
+function openCitySkuModal(ch, city) {
+  const rows = CITY_DATA.filter(r=>r.Channel===ch&&r.City===city);
+  if (!rows.length) return;
+
+  // Get pro-ratio for this channel
+  const proRatio = (() => { const r = ALL_DATA.find(r=>r.Channel===ch); return r?r._proRatio||1:1; })();
+
+  // Enrich rows with computed metrics
+  const enriched = rows.map(r => {
+    const actual    = r.Actual_Qty;
+    const lmActual  = r.LM_Qty;
+    const l3mActual = r.L3M_Qty / 3;
+    const lfmPro    = lmActual  * proRatio;
+    const l3mPro    = l3mActual * proRatio;
+    const vsLfmPro  = lfmPro  > 0 ? actual/lfmPro*100  : null;
+    const vsL3mPro  = l3mPro  > 0 ? actual/l3mPro*100  : null;
+    return {...r, actual, lmActual, l3mActual, lfmPro, l3mPro, vsLfmPro, vsL3mPro};
+  });
+
+  // Modal sort state
+  if (!window._modalSort) window._modalSort = {};
+  if (!window._modalSort[ch+city]) window._modalSort[ch+city] = {key:'actual', dir:'desc'};
+  const ms = window._modalSort[ch+city];
+
+  function renderModal() {
+    const sorted = [...enriched].sort((a,b) => {
+      const va = a[ms.key]??0, vb = b[ms.key]??0;
+      if (typeof va==='string') return ms.dir==='asc'?va.localeCompare(vb):vb.localeCompare(va);
+      return ms.dir==='asc'?va-vb:vb-va;
+    });
+
+    const tot = sorted.reduce((s,r)=>({
+      actual:   s.actual   + r.actual,
+      lfmPro:   s.lfmPro   + r.lfmPro,
+      l3mPro:   s.l3mPro   + r.l3mPro,
+      lmActual: s.lmActual + r.lmActual,
+      l3mActual:s.l3mActual+ r.l3mActual,
+    }), {actual:0,lfmPro:0,l3mPro:0,lmActual:0,l3mActual:0});
+    const totVsLfm = tot.lfmPro  > 0 ? tot.actual/tot.lfmPro*100  : null;
+    const totVsL3m = tot.l3mPro  > 0 ? tot.actual/tot.l3mPro*100  : null;
+
+    const pctCell = (val) => val===null
+      ? `<td style="color:var(--muted)">—</td>`
+      : `<td style="color:${val>=100?'var(--green)':'var(--red)'};font-weight:600">${fmtPct(val)}</td>`;
+
+    const MODAL_COLS = [
+      {key:'SKU',       label:'SKU',            str:true},
+      {key:'Category',  label:'Category',        str:true},
+      {key:'actual',    label:'Actual'},
+      {key:'lfmPro',    label:'LFM Pro-rated'},
+      {key:'l3mPro',    label:'L3M Pro-rated'},
+      {key:'lmActual',  label:'LM Actual'},
+      {key:'l3mActual', label:'L3M Actual'},
+      {key:'vsLfmPro',  label:'vs LFM Pro'},
+      {key:'vsL3mPro',  label:'vs L3M Pro'},
+    ];
+
+    const thRow = MODAL_COLS.map(col => {
+      const isActive = ms.key === col.key;
+      const isVs = col.key.startsWith('vs');
+      return `<th style="cursor:pointer${isVs?';color:var(--terra-deep)':''}" class="${isActive?'sort-active':''}"
+        onclick="(function(){window._modalSort['${(ch+city).replace(/'/g,"\\'")}'].key='${col.key}';window._modalSort['${(ch+city).replace(/'/g,"\\'")}'].dir=('${col.key}'===window._modalSort['${(ch+city).replace(/'/g,"\\'")}'].key&&window._modalSort['${(ch+city).replace(/'/g,"\\'")}'].dir==='desc')?'asc':'desc';openCitySkuModal('${ch.replace(/'/g,"\\'")}','${city.replace(/'/g,"\\'")}');})()">${col.label}${isActive?(ms.dir==='desc'?' ↓':' ↑'):''}</th>`;
+    }).join('');
+
+    const bodyRows = sorted.map(r => `<tr>
+      <td style="text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.SKU}"><span class="sku-tag" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:inline-block;max-width:100%">${r.SKU}</span></td>
+      <td style="text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span class="cat-tag" style="white-space:nowrap">${r.Category}</span></td>
+      <td style="font-family:'JetBrains Mono',monospace;text-align:right;font-weight:600">${fmtQ(Math.round(r.actual))}</td>
+      <td style="font-family:'JetBrains Mono',monospace;text-align:right;color:var(--terra)">${fmtQ(Math.round(r.lfmPro))}</td>
+      <td style="font-family:'JetBrains Mono',monospace;text-align:right;color:var(--teal)">${fmtQ(Math.round(r.l3mPro))}</td>
+      <td class="num-muted">${fmtQ(Math.round(r.lmActual))}</td>
+      <td class="num-muted">${fmtQ(Math.round(r.l3mActual))}</td>
+      ${pctCell(r.vsLfmPro)}
+      ${pctCell(r.vsL3mPro)}
+    </tr>`).join('');
+
+    const totalRow = `<tr style="background:var(--cream-mid);font-weight:700;border-top:2px solid var(--parchment)">
+      <td colspan="2" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--terra)">TOTAL (${sorted.length} SKUs)</td>
+      <td style="font-family:'JetBrains Mono',monospace;text-align:right;font-weight:700">${fmtQ(Math.round(tot.actual))}</td>
+      <td style="font-family:'JetBrains Mono',monospace;text-align:right;color:var(--terra)">${fmtQ(Math.round(tot.lfmPro))}</td>
+      <td style="font-family:'JetBrains Mono',monospace;text-align:right;color:var(--teal)">${fmtQ(Math.round(tot.l3mPro))}</td>
+      <td class="num-muted">${fmtQ(Math.round(tot.lmActual))}</td>
+      <td class="num-muted">${fmtQ(Math.round(tot.l3mActual))}</td>
+      ${pctCell(totVsLfm)}
+      ${pctCell(totVsL3m)}
+    </tr>`;
+
+    document.getElementById('city-modal-title').textContent = `${ch} · ${city} — SKU Breakdown`;
+    document.getElementById('city-modal-body').innerHTML = `
+      <div style="overflow-x:auto">
+        <table class="city-table" style="width:100%;table-layout:fixed">
+          <colgroup>
+            <col style="width:220px">
+            <col style="width:100px">
+            <col style="width:80px">
+            <col style="width:95px">
+            <col style="width:95px">
+            <col style="width:80px">
+            <col style="width:80px">
+            <col style="width:75px">
+            <col style="width:75px">
+          </colgroup>
+          <thead><tr>${thRow}</tr></thead>
+          <tbody>${bodyRows}${totalRow}</tbody>
+        </table>
+      </div>`;
+    document.getElementById('city-modal-bg').classList.add('open');
+  }
+  renderModal();
+}
+function closeCityModal(e) { if(!e||e.target===document.getElementById('city-modal-bg')) document.getElementById('city-modal-bg').classList.remove('open'); }
+
+function renderCityView(c) {
+  const selCh  = msState['ms-channel'].selected;
+  const selCat = msState['ms-category'].selected;
+  const totCh  = msState['ms-channel'].allItems.length;
+  const totCat = msState['ms-category'].allItems.length;
+  let cityFiltered = CITY_DATA.filter(r => {
+    if (selCh.size>0  && selCh.size<totCh   && !selCh.has(r.Channel))   return false;
+    if (selCat.size>0 && selCat.size<totCat  && !selCat.has(r.Category)) return false;
+    return true;
+  });
+  const byCh = {};
+  cityFiltered.forEach(r => { if(!byCh[r.Channel]) byCh[r.Channel]=[]; byCh[r.Channel].push(r); });
+
+  const chProRatio = {};
+  ALL_DATA.forEach(r => { if (!chProRatio[r.Channel]) chProRatio[r.Channel] = r._proRatio || 1; });
+
+  function aggCityRows(rows) {
+    const map={};
+    rows.forEach(r => {
+      if(!map[r.City]) map[r.City]={City:r.City,Actual_Qty:0,LM_Qty:0,L3M_Qty:0,skus:new Set()};
+      const m=map[r.City];
+      m.Actual_Qty += r.Actual_Qty||0;
+      m.LM_Qty     += r.LM_Qty||0;
+      m.L3M_Qty    += r.L3M_Qty||0;
+      m.skus.add(r.SKU);
+    });
+    return Object.values(map).map(m=>({...m,sku_count:m.skus.size}));
+  }
+
+  function enrichCity(r, proRatio) {
+    const actual    = r.Actual_Qty;
+    const lmActual  = r.LM_Qty;
+    const l3mActual = r.L3M_Qty / 3;
+    const lfmPro    = lmActual  * proRatio;
+    const l3mPro    = l3mActual * proRatio;
+    const vsLfmPro  = lfmPro  > 0 ? actual / lfmPro  * 100 : null;
+    const vsL3mPro  = l3mPro  > 0 ? actual / l3mPro  * 100 : null;
+    return {...r, actual, lmActual, l3mActual, lfmPro, l3mPro, vsLfmPro, vsL3mPro};
+  }
+
+  const pctCell = (val) => val===null
+    ? `<td style="color:var(--muted)">—</td>`
+    : `<td style="color:${val>=100?'var(--green)':'var(--red)'};font-weight:600">${fmtPct(val)}</td>`;
+
+  const CITY_SORT_KEYS = ['actual','lfmPro','l3mPro','lmActual','l3mActual','vsLfmPro','vsL3mPro','City'];
+  const CITY_COL_LABELS = {
+    actual:'Actual', lfmPro:'LFM Pro-rated', l3mPro:'L3M Pro-rated',
+    lmActual:'LM Actual', l3mActual:'L3M Actual', vsLfmPro:'vs LFM Pro', vsL3mPro:'vs L3M Pro', City:'City A-Z'
+  };
+
+  const platforms = Object.keys(byCh).sort();
+  if (!platforms.length) {
+    c.innerHTML=`<div class="no-data">No city data for selected filters.<br><span style="font-size:10px">City data available for Q-Comm: Blinkit, Instamart, Zepto, Big Basket</span></div>`;
+    return;
+  }
+
+  const cards = platforms.map(ch => {
+    const proRatio  = chProRatio[ch] || 1;
+    const rawCities = aggCityRows(byCh[ch]);
+    const cities    = rawCities.map(r => enrichCity(r, proRatio));
+
+    const sortState = getCitySortState(ch);
+    const showAll   = cityShowAll[ch]  || false;
+    const collapsed = cityCollapsed[ch] !== false;
+    const PREVIEW   = 12;
+
+    cities.sort((a,b) => {
+      const va = a[sortState.key] ?? (typeof a[sortState.key]==='string' ? '' : 0);
+      const vb = b[sortState.key] ?? (typeof b[sortState.key]==='string' ? '' : 0);
+      if (typeof va==='string') return sortState.dir==='asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+      return sortState.dir==='asc' ? va-vb : vb-va;
+    });
+
+    const displayCities = showAll ? cities : cities.slice(0, PREVIEW);
+    const maxVal = Math.max(...cities.map(r=>r.actual), 1);
+    const color  = chColor(ch);
+
+    const tot = cities.reduce((s,r) => ({
+      actual:   s.actual    + r.actual,
+      lfmPro:   s.lfmPro    + r.lfmPro,
+      l3mPro:   s.l3mPro    + r.l3mPro,
+      lmActual: s.lmActual  + r.lmActual,
+      l3mActual:s.l3mActual + r.l3mActual,
+    }), {actual:0,lfmPro:0,l3mPro:0,lmActual:0,l3mActual:0});
+    const totVsLfm = tot.lfmPro > 0 ? tot.actual/tot.lfmPro*100 : null;
+    const totVsL3m = tot.l3mPro > 0 ? tot.actual/tot.l3mPro*100 : null;
+
+    // Sort buttons
+    const sortBtns = CITY_SORT_KEYS.map(k => {
+      const isActive = sortState.key === k;
+      return `<button class="city-sort-mini-btn ${isActive?'active':''}" onclick="event.stopPropagation();setCitySort('${ch}','${k}')">${CITY_COL_LABELS[k]}${isActive?(sortState.dir==='desc'?' ↓':' ↑'):''}</button>`;
+    }).join('');
+
+    // Column headers (skip City — it's the first td)
+    const dataKeys = ['actual','lfmPro','l3mPro','lmActual','l3mActual','vsLfmPro','vsL3mPro'];
+    const thCols = dataKeys.map(k => {
+      const isActive = sortState.key === k;
+      const isVs = k.startsWith('vs');
+      return `<th onclick="setCitySort('${ch}','${k}')" style="cursor:pointer${isVs?';color:var(--terra-deep)':''}" class="${isActive?'sort-active':''}">${CITY_COL_LABELS[k]}${isActive?(sortState.dir==='desc'?' ↓':' ↑'):''}</th>`;
+    }).join('');
+
+    const cityRows = displayCities.map((r,i) => {
+      const barW = (r.actual/maxVal*100).toFixed(1);
+      return `<tr>
+        <td class="city-name" style="cursor:pointer" onclick="openCitySkuModal('${ch}','${r.City.replace(/'/g,"\\'")}')">
+          <span style="color:var(--muted);font-size:9px;margin-right:4px">${i+1}</span>${r.City}
+          <span class="city-sku-link" style="margin-left:4px">${r.sku_count} SKU${r.sku_count>1?'s':''}</span>
+        </td>
+        <td class="city-bar-cell"><div class="city-bar-outer"><div class="city-bar-inner" style="width:${barW}%;background:${color}"></div></div></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-weight:600">${fmtQ(Math.round(r.actual))}</td>
+        <td style="font-family:'JetBrains Mono',monospace;color:var(--terra)">${fmtQ(Math.round(r.lfmPro))}</td>
+        <td style="font-family:'JetBrains Mono',monospace;color:var(--teal)">${fmtQ(Math.round(r.l3mPro))}</td>
+        <td class="num-muted">${fmtQ(Math.round(r.lmActual))}</td>
+        <td class="num-muted">${fmtQ(Math.round(r.l3mActual))}</td>
+        ${pctCell(r.vsLfmPro)}
+        ${pctCell(r.vsL3mPro)}
+      </tr>`;
+    }).join('');
+
+    const totalRow = `<tr style="background:var(--cream-mid);font-weight:700;border-top:2px solid var(--parchment)">
+      <td style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--terra)">TOTAL (${cities.length})</td>
+      <td></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-weight:700">${fmtQ(Math.round(tot.actual))}</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:var(--terra)">${fmtQ(Math.round(tot.lfmPro))}</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:var(--teal)">${fmtQ(Math.round(tot.l3mPro))}</td>
+      <td class="num-muted">${fmtQ(Math.round(tot.lmActual))}</td>
+      <td class="num-muted">${fmtQ(Math.round(tot.l3mActual))}</td>
+      ${pctCell(totVsLfm)}
+      ${pctCell(totVsL3m)}
+    </tr>`;
+
+    const bodyHtml = `
+      <div style="padding:8px 12px;border-bottom:1px solid var(--border);display:flex;gap:4px;flex-wrap:wrap">${sortBtns}</div>
+      <div style="overflow-x:auto">
+        <table class="city-table" style="width:100%;table-layout:auto">
+          <thead><tr>
+            <th style="text-align:left;cursor:pointer" onclick="setCitySort('${ch}','City')">City</th>
+            <th style="width:80px">Bar</th>
+            ${thCols}
+          </tr></thead>
+          <tbody>${cityRows}${totalRow}</tbody>
+        </table>
+      </div>
+      ${cities.length>PREVIEW ? `<div class="city-show-more"><button class="city-show-btn" onclick="toggleCityShowAll('${ch}')">${showAll?'▲ Show less':'▼ Show all '+cities.length+' cities'}</button></div>` : ''}`;
+
+    return `<div class="city-platform-card">
+      <div class="city-platform-header" style="cursor:pointer" onclick="toggleCityCard('${ch}')">
+        <div style="flex:1">
+          <div class="city-platform-title" style="color:${color}">${ch}</div>
+          <div style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px">
+            ${cities.length} cities · Actual: <strong>${fmtQ(Math.round(tot.actual))}</strong>
+            · vs LFM Pro: <span style="color:${totVsLfm===null?'var(--muted)':totVsLfm>=100?'var(--green)':'var(--red)'}">${totVsLfm!==null?fmtPct(totVsLfm):'—'}</span>
+            · vs L3M Pro: <span style="color:${totVsL3m===null?'var(--muted)':totVsL3m>=100?'var(--green)':'var(--red)'}">${totVsL3m!==null?fmtPct(totVsL3m):'—'}</span>
+          </div>
+        </div>
+        <div style="font-size:16px;color:var(--muted);padding-left:12px;user-select:none">${collapsed?'▶':'▼'}</div>
+      </div>
+      <div id="city-body-${ch.replace(/ /g,'_')}" style="display:${collapsed?'none':'block'}">${bodyHtml}</div>
+    </div>`;
+  }).join('');
+
+  c.innerHTML = `<div class="city-platform-grid">${cards}</div>`;
+}
+
+
+
+// ─── SKU PERFORMANCE PANEL — Full replica of Perf Dashboard SKU Trend View ────
+
+// State
+let _ppSku     = null;  // {channel, skuCode, skuName, category}
+let _ppMetric  = 'gross_sales';
+let _ppSortKey = 'mtd';
+let _ppSortDir = 'desc';
+
+const PP_ALL_METRICS = [
+  { key:'gross_sales',    label:'Gross Sales',    fmt:'rev'  },
+  { key:'gross_units',    label:'Gross Units',    fmt:'qty'  },
+  { key:'gross_clicks',   label:'Gross Clicks',   fmt:'qty'  },
+  { key:'gross_cvr',      label:'Gross CVR',      fmt:'pct'  },
+  { key:'ad_sales',       label:'Ad Sales',       fmt:'rev'  },
+  { key:'ad_units',       label:'Ad Units',       fmt:'qty'  },
+  { key:'ad_clicks',      label:'Ad Clicks',      fmt:'qty'  },
+  { key:'ad_spend',       label:'Ad Spend',       fmt:'rev'  },
+  { key:'ad_roas',        label:'Ad ROAS',        fmt:'roas' },
+  { key:'total_roas',     label:'Total ROAS',     fmt:'roas' },
+  { key:'ad_cvr',         label:'Ad CVR',         fmt:'pct'  },
+  { key:'ctr',            label:'CTR',            fmt:'pct'  },
+  { key:'cpc',            label:'CPC',            fmt:'rev'  },
+  { key:'organic_sales',  label:'Organic Sales',  fmt:'rev'  },
+  { key:'organic_units',  label:'Organic Units',  fmt:'qty'  },
+  { key:'organic_ratio',  label:'Org:Inorg',      fmt:'ratio'},
+  { key:'ad_impressions', label:'Impressions',    fmt:'qty'  },
+];
+
+function ppParseDMY(s) {
+  const m = String(s||'').trim().match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  return m ? new Date(+m[3], +m[2]-1, +m[1]) : null;
+}
+function ppDaysBetween(s1, s2) {
+  const a = ppParseDMY(s1), b = ppParseDMY(s2);
+  if (!a || !b || b < a) return null;
+  return Math.round((b - a) / 86400000) + 1;
+}
+function ppGetPeriodDays() {
+  const lfmDays = ppDaysBetween(
+    document.getElementById('pp-lfm-start')?.value,
+    document.getElementById('pp-lfm-end')?.value
+  ) || 31;
+  const l3mDays = ppDaysBetween(
+    document.getElementById('pp-l3m-start')?.value,
+    document.getElementById('pp-l3m-end')?.value
+  ) || 90;
+  return { lfmDays, l3mDays };
+}
+
+// Derive computed fields from raw summed row
+function ppDerive(r) {
+  const gs = r.GrossSales || 0;
+  const as_ = r.AdSales   || 0;
+  const sp = r.AdSpend    || 0;
+  const ai = r.AdImpressions || 0;
+  const ac = r.AdClicks   || 0;
+  const au = r.AdUnits    || 0;
+  const gc = r.GrossClicks || 0;
+  const gu = r.GrossUnits  || 0;
+  return {
+    ...r,
+    gross_sales:    gs,
+    gross_units:    gu,
+    gross_clicks:   gc,
+    ad_sales:       as_,
+    ad_units:       au,
+    ad_clicks:      ac,
+    ad_spend:       sp,
+    ad_impressions: ai,
+    organic_sales:  gs - as_,
+    organic_units:  gu - au,
+    ad_roas:        sp > 0 ? as_ / sp    : null,
+    total_roas:     sp > 0 ? gs  / sp    : null,
+    ctr:            ai > 0 ? ac  / ai    : null,
+    ad_cvr:         ac > 0 ? au  / ac    : null,
+    gross_cvr:      gc > 0 ? gu  / gc    : null,
+    cpc:            ac > 0 ? sp  / ac    : null,
+    organic_ratio:  as_ > 0 ? (gs - as_) / as_ : null,
+  };
+}
+
+function ppFmtVal(key, val) {
+  if (val == null || isNaN(val)) return '—';
+  const m = PP_ALL_METRICS.find(x => x.key === key);
+  const fmt_ = m?.fmt || 'rev';
+  if (fmt_ === 'qty')   return fmtQ(Math.round(val));
+  if (fmt_ === 'pct')   return (val * 100).toFixed(2) + '%';
+  if (fmt_ === 'roas')  return val.toFixed(2) + 'x';
+  if (fmt_ === 'ratio') return val.toFixed(2) + ' : 1';
+  return fmt(val); // revenue
+}
+
+function ppDirArrow(curr, prev) {
+  if (curr == null || prev == null || prev === 0 || !isFinite(curr) || !isFinite(prev)) return '';
+  const pct = (curr - prev) / Math.abs(prev) * 100;
+  if (Math.abs(pct) < 2) return `<span class="dir-flat">→</span>`;
+  return pct > 0
+    ? `<span class="dir-up">↑${Math.abs(pct).toFixed(0)}%</span>`
+    : `<span class="dir-down">↓${Math.abs(pct).toFixed(0)}%</span>`;
+}
+
+function openPerfPanelByIdx(tr) {
+  const idx = parseInt(tr.getAttribute('data-row-idx'), 10);
+  const r = ALL_DATA[idx];
+  if (!r) return;
+  openPerfPanel(r.Channel, r.SKU, r.SKU_CODE || r.SKU, r.Category);
+}
+
+function openPerfPanel(channel, skuDisplay, skuCode, category) {
+  _ppSku = { channel, skuDisplay, skuCode, category };
+  document.getElementById('pp-sku-name').textContent = skuDisplay;
+  document.getElementById('pp-sku-meta').textContent = channel + ' · ' + category;
+  document.getElementById('perf-panel-overlay').classList.add('open');
+  document.getElementById('perf-panel').classList.add('open');
+  renderPerfPanel();
+}
+
+function closePerfPanel() {
+  document.getElementById('perf-panel-overlay').classList.remove('open');
+  document.getElementById('perf-panel').classList.remove('open');
+}
+
+function refreshPerfPanel() {
+  if (_ppSku) renderPerfPanel();
+}
+
+function renderPerfPanel() {
+  if (!_ppSku) return;
+  const { channel, skuDisplay, skuCode, category } = _ppSku;
+
+  // Update period note
+  const { lfmDays, l3mDays } = ppGetPeriodDays();
+  const noteEl = document.getElementById('pp-period-note');
+  if (noteEl) noteEl.textContent = `LFM: ${lfmDays}d · L3M: ${l3mDays}d`;
+
+  // ── Sales context strip ─────────────────────────────────────────────────────
+  const salesRow = ALL_DATA.find(r => r.Channel === channel && (r.SKU_CODE === skuCode || r.SKU === skuDisplay || r.SKU === skuCode));
+  const salesStrip = document.getElementById('pp-sales-strip');
+  if (salesRow && salesStrip) {
+    const delta = salesRow.Actual_Revenue - salesRow.Prorata_Planned_Revenue;
+    const ach   = salesRow.Rev_Ach_Pct;
+    salesStrip.innerHTML = `
+      <div class="pp-sales-cell">
+        <span class="pp-sales-val">${fmt(salesRow.Actual_Revenue)}</span>
+        <span class="pp-sales-lbl">MTD Actual Rev</span>
+      </div>
+      <div class="pp-sales-cell">
+        <span class="pp-sales-val">${fmt(salesRow.Prorata_Planned_Revenue)}</span>
+        <span class="pp-sales-lbl">Pro-rata Plan</span>
+      </div>
+      <div class="pp-sales-cell">
+        <span class="pp-sales-val" style="color:${delta>=0?'var(--green)':'var(--red)'}">${delta>=0?'+':''}${fmt(delta)}</span>
+        <span class="pp-sales-lbl">Sales Delta</span>
+      </div>
+      <div class="pp-sales-cell">
+        <span class="pp-sales-val" style="color:${achColor(ach)}">${fmtPct(ach)}</span>
+        <span class="pp-sales-lbl">Achievement</span>
+      </div>`;
+  } else if (salesStrip) {
+    salesStrip.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:10px;padding:6px">No sales plan data for this SKU</div>`;
+  }
+
+  // ── Metric switcher ─────────────────────────────────────────────────────────
+  const metricBar = document.getElementById('pp-metric-bar');
+  if (metricBar) {
+    metricBar.innerHTML = PP_ALL_METRICS.map(m =>
+      `<button class="pp-metric-btn ${m.key===_ppMetric?'active':''}"
+        onclick="_ppMetric='${m.key}';renderPerfPanel()">${m.label}</button>`
+    ).join('');
+  }
+
+  // ── Check if we have perf data ──────────────────────────────────────────────
+  const hasPerfCh = PERF_LOADED && PERF_DATA.some(r => r.Platform.toLowerCase() === channel.toLowerCase());
+  const tableWrap = document.getElementById('pp-table-wrap');
+
+  // Compute proRatio here so city diagnosis can use it even for QC platforms
+  const _salesRowForPro = ALL_DATA.find(r => r.Channel === channel && (r.SKU_CODE === skuCode || r.SKU === skuDisplay));
+  const _proRatioEarly  = _salesRowForPro?._proRatio || ALL_DATA.find(r => r.Channel === channel)?._proRatio || (25/30);
+
+  if (!PERF_LOADED || !hasPerfCh) {
+    // For QC platforms — no ads data, but show sales context + city diagnosis
+    const salesContextHtml = salesRow ? `` : '';
+    const cityHtml = buildCityDiagnosis(channel, skuCode, _proRatioEarly);
+
+    // Build diagnosis from sales data alone (plan vs achievement)
+    const salesOnlyDiag = salesRow ? (() => {
+      const ach   = salesRow.Rev_Ach_Pct || 0;
+      const delta = salesRow.Actual_Revenue - salesRow.Prorata_Planned_Revenue;
+      const sev   = ach >= 95 ? 'good' : ach >= 80 ? 'warning' : 'alert';
+      const sevColor  = sev==='alert'?'var(--red)':sev==='warning'?'var(--amber)':'var(--green)';
+      const sevBg     = sev==='alert'?'rgba(184,48,32,.07)':sev==='warning'?'rgba(155,110,16,.07)':'rgba(42,102,68,.07)';
+      const sevBorder = sev==='alert'?'rgba(184,48,32,.2)':sev==='warning'?'rgba(155,110,16,.2)':'rgba(42,102,68,.2)';
+      const sevLabel  = sev==='alert'?'⚠️ Alert':sev==='warning'?'⚡ Watch':'✅ Healthy';
+      const line1 = ach >= 95
+        ? `On track — ${ach.toFixed(0)}% of pro-rata plan (${fmt(salesRow.Actual_Revenue)} vs ${fmt(salesRow.Prorata_Planned_Revenue)} target, ${delta>=0?'+':''}${fmt(delta)}).`
+        : ach >= 80
+        ? `Behind plan — ${ach.toFixed(0)}% achievement (${fmt(Math.abs(delta))} short of pro-rata target of ${fmt(salesRow.Prorata_Planned_Revenue)}).`
+        : `Significantly behind plan — ${ach.toFixed(0)}% achievement (${fmt(Math.abs(delta))} short of pro-rata target of ${fmt(salesRow.Prorata_Planned_Revenue)}).`;
+      // LM trend from sales data
+      const lmPro = (salesRow.LM_Revenue || 0) * _proRatioEarly;
+      const trend = lmPro > 0 ? salesRow.Actual_Revenue / lmPro * 100 : null;
+      const line2 = trend != null
+        ? (trend >= 105 ? `Up ${(trend-100).toFixed(0)}% vs last month pro-rated.`
+           : trend >= 90 ? `Broadly flat vs last month pro-rated (${(trend-100).toFixed(0)}%).`
+           : `Also down ${(100-trend).toFixed(0)}% vs last month pro-rated — sustained underperformance.`)
+        : null;
+
+      let diagContent = `<div style="font-size:11px;color:var(--brown-mid);line-height:1.6;margin-bottom:4px;display:flex;gap:7px"><span>›</span><span>${line1}</span></div>`;
+      if (line2) diagContent += `<div style="font-size:11px;color:var(--brown-mid);line-height:1.6;margin-bottom:4px;display:flex;gap:7px"><span>›</span><span>${line2}</span></div>`;
+
+      if (cityHtml) {
+        diagContent += cityHtml;
+      }
+
+      return `<div style="margin:12px 16px;padding:12px 14px;border-radius:9px;border:1px solid ${sevBorder};background:${sevBg}">
+        <div style="font-size:10px;font-weight:700;color:${sevColor};margin-bottom:7px;letter-spacing:.02em">${sevLabel} — Plan vs Achievement → Trend → City</div>
+        ${diagContent}
+      </div>`;
+    })() : cityHtml;
+
+    tableWrap.innerHTML = (salesOnlyDiag || '') + `<div class="pp-no-data" style="padding:20px">
+      <span style="font-size:9px;color:var(--muted)">📊 Ad performance data not available for ${channel} — showing sales + city signals only</span>
+    </div>`;
+    return;
+  }
+
+  // ── Build MTD / LFM / L3M rows for this SKU ─────────────────────────────────
+  // MTD: find the row(s) for this SKU + platform in MTD period
+  const mtdRows = PERF_DATA.filter(r => r.Platform.toLowerCase() === channel.toLowerCase() && r.SKU_CODE.toLowerCase() === skuCode.toLowerCase() && r.Time === 'MTD');
+  const lfmRows = PERF_DATA.filter(r => r.Platform.toLowerCase() === channel.toLowerCase() && r.SKU_CODE.toLowerCase() === skuCode.toLowerCase() && r.Time === 'LFM');
+  const l3mRows = PERF_DATA.filter(r => r.Platform.toLowerCase() === channel.toLowerCase() && r.SKU_CODE.toLowerCase() === skuCode.toLowerCase() && r.Time === 'L3M');
+
+  // Sum across multiple date rows if any
+  function sumRows(rows) {
+    if (!rows.length) return null;
+    return rows.reduce((acc, r) => {
+      acc.GrossClicks    += r.GrossClicks    || 0;
+      acc.GrossUnits     += r.GrossUnits     || 0;
+      acc.GrossSales     += r.GrossSales     || 0;
+      acc.AdSpend        += r.AdSpend        || 0;
+      acc.AdImpressions  += r.AdImpressions  || 0;
+      acc.AdClicks       += r.AdClicks       || 0;
+      acc.AdUnits        += r.AdUnits        || 0;
+      acc.AdSales        += r.AdSales        || 0;
+      return acc;
+    }, { GrossClicks:0,GrossUnits:0,GrossSales:0,AdSpend:0,AdImpressions:0,AdClicks:0,AdUnits:0,AdSales:0 });
+  }
+
+  const rawMtd = sumRows(mtdRows);
+  const rawLfm = sumRows(lfmRows);
+  const rawL3m = sumRows(l3mRows);
+
+  if (!rawMtd && !rawLfm && !rawL3m) {
+    tableWrap.innerHTML = `<div class="pp-no-data">
+      📊 No performance data found for this SKU<br>
+      <span style="font-size:9px">SKU code: ${skuCode}</span>
+    </div>`;
+    return;
+  }
+
+  // Get MTD day count for this platform (pro-rating)
+  // Reuse the proRatio already computed before the early return
+  const proRatioUsed   = _proRatioEarly;
+  const daysInCurMonth = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate();
+  const mtdDay = Math.round(proRatioUsed * daysInCurMonth) || 25;
+
+  // Pro-rate LFM and L3M to MTD day count
+  function proRate(raw, periodDays) {
+    if (!raw || periodDays === 0) return null;
+    const ratio = mtdDay / periodDays;
+    return {
+      GrossClicks:   raw.GrossClicks   * ratio,
+      GrossUnits:    raw.GrossUnits    * ratio,
+      GrossSales:    raw.GrossSales    * ratio,
+      AdSpend:       raw.AdSpend       * ratio,
+      AdImpressions: raw.AdImpressions * ratio,
+      AdClicks:      raw.AdClicks      * ratio,
+      AdUnits:       raw.AdUnits       * ratio,
+      AdSales:       raw.AdSales       * ratio,
+    };
+  }
+
+  const mtdDerived = rawMtd ? ppDerive(rawMtd) : null;
+  const lfmDerived = rawLfm ? ppDerive(proRate(rawLfm, lfmDays)) : null;
+  const l3mDerived = rawL3m ? ppDerive(proRate(rawL3m, l3mDays)) : null;
+
+  // ── Build table identical to Perf Dashboard SKU Trend View ─────────────────
+  const metric = _ppMetric;
+  const metaDef = PP_ALL_METRICS.find(m => m.key === metric) || PP_ALL_METRICS[0];
+
+  function sortThHtml(period, label) {
+    const isActive = _ppSortKey === period;
+    const arrow = isActive ? (_ppSortDir === 'desc' ? '↓' : '↑') : '↕';
+    return `<th class="${isActive?'sort-active':''}" onclick="ppSetSort('${period}')">
+      <div class="th-inner">${label} <span class="sort-arrow" style="opacity:${isActive?1:.3};font-size:9px">${arrow}</span></div>
+    </th>`;
+  }
+
+  // For this SKU there's just one row — but we show all metrics as rows in a column-based view
+  // Actually we replicate the exact table: Platform | SKU | Category | L3M(pro) | LFM(pro) | MTD | LFM vs L3M | MTD vs LFM
+  const mtdVal = mtdDerived ? mtdDerived[metric] : null;
+  const lfmVal = lfmDerived ? lfmDerived[metric] : null;
+  const l3mVal = l3mDerived ? l3mDerived[metric] : null;
+
+  const color = chColor(channel);
+
+  const thead = `<thead><tr>
+    <th style="min-width:90px"><div class="th-inner">Platform</div></th>
+    <th style="min-width:180px;text-align:left"><div class="th-inner">SKU</div></th>
+    <th style="min-width:90px;text-align:left"><div class="th-inner">Category</div></th>
+    ${sortThHtml('l3m','L3M (pro-rated)')}
+    ${sortThHtml('lfm','LFM (pro-rated)')}
+    ${sortThHtml('mtd','MTD Actual')}
+    <th><div class="th-inner">LFM vs L3M</div></th>
+    <th><div class="th-inner">MTD vs LFM</div></th>
+  </tr></thead>`;
+
+  // SKU single row
+  const skuRow = `<tr>
+    <td><span class="platform-badge" style="background:${color};color:#fff;display:inline-block;padding:2px 8px;border-radius:12px;font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:600">${channel}</span></td>
+    <td style="font-weight:600;color:var(--brown)">${skuDisplay}</td>
+    <td><span style="background:var(--cream-mid);color:var(--brown-mid);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:10px">${category}</span></td>
+    <td><span style="color:var(--muted)">${ppFmtVal(metric, l3mVal)}</span></td>
+    <td><span style="color:var(--terra)">${ppFmtVal(metric, lfmVal)}</span></td>
+    <td><strong>${ppFmtVal(metric, mtdVal)}</strong></td>
+    <td>${ppDirArrow(lfmVal, l3mVal)}</td>
+    <td>${ppDirArrow(mtdVal, lfmVal)}</td>
+  </tr>`;
+
+  // All-metrics breakdown table — shows every metric as a row for deep dive
+  const allMetricRows = PP_ALL_METRICS.map(m => {
+    const mv = mtdDerived ? mtdDerived[m.key] : null;
+    const lv = lfmDerived ? lfmDerived[m.key] : null;
+    const l3v = l3mDerived ? l3mDerived[m.key] : null;
+    const isSelected = m.key === metric;
+    return `<tr style="${isSelected?'background:var(--blush-faint);':''}" onclick="_ppMetric='${m.key}';renderPerfPanel()">
+      <td colspan="2" style="text-align:left;cursor:pointer">
+        <strong style="color:${isSelected?'var(--terra)':'var(--brown)'}">${m.label}</strong>
+      </td>
+      <td></td>
+      <td style="color:var(--muted)">${ppFmtVal(m.key, l3v)}</td>
+      <td style="color:var(--terra)">${ppFmtVal(m.key, lv)}</td>
+      <td><strong>${ppFmtVal(m.key, mv)}</strong></td>
+      <td>${ppDirArrow(lv, l3v)}</td>
+      <td>${ppDirArrow(mv, lv)}</td>
+    </tr>`;
+  }).join('');
+
+  // ── Render diagnosis card ───────────────────────────────────────────────────
+  const diagResult = generateDiagnosis(mtdDerived, lfmDerived, l3mDerived, skuDisplay, salesRow);
+  let diagHtml = '';
+  if (diagResult && diagResult.lines.length) {
+    const sev = diagResult.severity;
+    const sevColor  = sev==='alert'?'var(--red)':sev==='warning'?'var(--amber)':sev==='good'?'var(--green)':'var(--muted)';
+    const sevBg     = sev==='alert'?'rgba(184,48,32,.07)':sev==='warning'?'rgba(155,110,16,.07)':sev==='good'?'rgba(42,102,68,.07)':'var(--cream-mid)';
+    const sevBorder = sev==='alert'?'rgba(184,48,32,.2)':sev==='warning'?'rgba(155,110,16,.2)':sev==='good'?'rgba(42,102,68,.2)':'var(--border)';
+    const sevLabel  = sev==='alert'?'⚠️ Alert':sev==='warning'?'⚡ Watch':sev==='good'?'✅ Healthy':'📊 Stable';
+    diagHtml = `<div style="margin:12px 16px;padding:12px 14px;border-radius:9px;border:1px solid ${sevBorder};background:${sevBg}">
+      <div style="font-size:10px;font-weight:700;color:${sevColor};margin-bottom:7px;letter-spacing:.02em">${sevLabel} — Plan vs Achievement → Trend → Root Cause</div>
+      ${diagResult.lines.map(l => `<div style="font-size:11px;color:var(--brown-mid);line-height:1.6;margin-bottom:4px;display:flex;gap:7px;align-items:flex-start"><span style="flex-shrink:0;margin-top:1px">›</span><span>${l}</span></div>`).join('')}
+    </div>`;
+  }
+  // ── City diagnosis (QC platforms only) ──────────────────────────────────────
+  const cityDiagHtml = buildCityDiagnosis(channel, skuCode, proRatioUsed);
+
+  // Merge city signals into diagnosis card if available
+  if (cityDiagHtml && diagResult && diagResult.lines.length) {
+    // Inject city section inside the diagnosis card, before closing div
+    diagHtml = diagHtml.replace(
+      '</div>',
+      cityDiagHtml + '</div>'
+    );
+  } else if (cityDiagHtml) {
+    diagHtml += cityDiagHtml;
+  }
+
+  tableWrap.innerHTML = diagHtml + `
+    <table class="pp-trend-table">
+      ${thead}
+      <tbody>
+        ${skuRow}
+        <tr class="totals-row">
+          <td colspan="3" style="text-align:left;font-size:9px;color:var(--terra);font-family:'JetBrains Mono',monospace;letter-spacing:.05em">
+            ALL METRICS (click a row to highlight)
+          </td>
+          <td style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace">L3M (pro)</td>
+          <td style="font-size:9px;color:var(--terra);font-family:'JetBrains Mono',monospace">LFM (pro)</td>
+          <td style="font-size:9px;font-family:'JetBrains Mono',monospace">MTD</td>
+          <td style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace">LFM/L3M</td>
+          <td style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace">MTD/LFM</td>
+        </tr>
+        ${allMetricRows}
+      </tbody>
+    </table>`;
+}
+
+
+// ─── DIAGNOSIS ENGINE ────────────────────────────────────────────────────────
+// Hierarchy: 1) Plan vs Achievement  2) Trend vs LFM/L3M  3) Root cause
+// City signals appended separately via buildCityDiagnosis()
+
+function generateDiagnosis(mtd, lfm, l3m, skuName, salesRow) {
+  // salesRow from ALL_DATA — has Prorata_Planned_Revenue, Actual_Revenue, Rev_Ach_Pct
+  const lines  = [];
+  let severity = 'neutral';
+
+  // ── Helpers ─────────────────────────────────────────────────────────────────
+  function ratio(c, r) { return (r && r !== 0 && c != null) ? c / r : null; }
+  function pctStr(r, abs) {
+    if (r == null) return '—';
+    const p = Math.round((r - 1) * 100);
+    return abs ? Math.abs(p) + '%' : (p >= 0 ? '+' : '') + p + '%';
+  }
+  function revStr(v) { return v != null ? fmt(v) : '—'; }
+
+  // ── THRESHOLDS ───────────────────────────────────────────────────────────────
+  const ACH_GOOD    = 95;   // ≥95% of pro-rata plan = on track
+  const ACH_WARN    = 80;   // 80–94% = watch
+  const ACH_ALERT   = 80;   // <80% = alert
+  const TREND_UP    = 1.05; // >5% vs LFM = up
+  const TREND_DOWN  = 0.90; // <10% vs LFM = down
+  const ROAS_DROP   = 0.85; // ROAS fallen >15%
+  const CVR_DROP    = 0.85; // CVR fallen >15%
+  const ORG_DROP    = 0.80; // Organic fallen >20%
+  const TRAFFIC_SURGE = 1.30; // clicks >30% up
+
+  // ══ LINE 1 — PLAN VS ACHIEVEMENT (primary signal) ══════════════════════════
+  if (salesRow) {
+    const ach   = salesRow.Rev_Ach_Pct || 0;
+    const delta = salesRow.Actual_Revenue - salesRow.Prorata_Planned_Revenue;
+    const plan  = salesRow.Prorata_Planned_Revenue;
+
+    if (ach >= ACH_GOOD) {
+      severity = 'good';
+      lines.push(`On track — ${ach.toFixed(0)}% of pro-rata plan (${revStr(salesRow.Actual_Revenue)} vs ${revStr(plan)} target, ${delta >= 0 ? '+' : ''}${revStr(delta)}).`);
+    } else if (ach >= ACH_WARN) {
+      severity = 'warning';
+      lines.push(`Behind plan — ${ach.toFixed(0)}% achievement (${revStr(Math.abs(delta))} short of pro-rata target of ${revStr(plan)}).`);
+    } else {
+      severity = 'alert';
+      lines.push(`Significantly behind plan — ${ach.toFixed(0)}% achievement (${revStr(Math.abs(delta))} short of pro-rata target of ${revStr(plan)}).`);
+    }
+  } else {
+    lines.push('No sales plan data available for this SKU.');
+  }
+
+  // ══ LINE 2 — TREND CONTEXT vs LFM/L3M (resolve mixed signals) ══════════════
+  if (mtd && lfm) {
+    const rGross = ratio(mtd.gross_sales, lfm.gross_sales);
+    const rL3m   = l3m ? ratio(mtd.gross_sales, l3m.gross_sales) : null;
+
+    if (rGross == null) {
+      // no LFM data — skip trend line
+    } else if (rGross >= TREND_UP) {
+      // GROWING vs LFM — but behind plan
+      if (salesRow && salesRow.Rev_Ach_Pct < ACH_GOOD) {
+        // The key mixed signal case — behind plan but up vs LFM
+        const planVsLM = salesRow.Planned_Revenue && lfm.gross_sales
+          ? salesRow.Planned_Revenue / (lfm.gross_sales) * 100 : null;
+        if (planVsLM && planVsLM > 115) {
+          lines.push(`Sales are up ${pctStr(rGross)} vs LFM — however plan is a stretch target (${planVsLM.toFixed(0)}% of last month). Validate target rationale before escalating.`);
+        } else {
+          lines.push(`Sales are up ${pctStr(rGross)} vs LFM — growth is there but plan requires more. Check if run-rate can close the gap by month end.`);
+        }
+      } else {
+        // On plan AND up vs LFM — genuinely healthy
+        const adUp  = ratio(mtd.ad_sales,              lfm.ad_sales);
+        const orgUp = (mtd.gross_sales - mtd.ad_sales > 0 && lfm.gross_sales - lfm.ad_sales > 0)
+          ? ratio(mtd.gross_sales - mtd.ad_sales, lfm.gross_sales - lfm.ad_sales) : null;
+        if (adUp && orgUp && adUp >= TREND_UP && orgUp >= TREND_UP) {
+          lines.push(`Up ${pctStr(rGross)} vs LFM — broad-based growth across both paid and organic.`);
+        } else if (adUp && adUp >= TREND_UP && !(orgUp && orgUp >= TREND_UP)) {
+          lines.push(`Up ${pctStr(rGross)} vs LFM — growth is ad-driven. Organic is flat or declining; check organic rank.`);
+          if (severity === 'good') severity = 'warning';
+        } else {
+          lines.push(`Up ${pctStr(rGross)} vs LFM${rL3m ? ' and ' + pctStr(rL3m) + ' vs L3M' : ''}.`);
+        }
+      }
+    } else if (rGross >= TREND_DOWN) {
+      // Flat vs LFM
+      lines.push(`Sales broadly flat vs LFM (${pctStr(rGross)})${rL3m ? ' and ' + pctStr(rL3m) + ' vs L3M' : ''}. Check ad vs organic mix for hidden shifts.`);
+    } else {
+      // DOWN vs LFM — add trend confirmation
+      lines.push(`Also down ${pctStr(rGross, true)} vs LFM${rL3m && rL3m < TREND_DOWN ? ' and ' + pctStr(rL3m, true) + ' vs L3M — sustained decline' : ''}.`);
+      if (severity !== 'alert') severity = 'alert';
+    }
+  }
+
+  // ══ LINE 3 — ROOT CAUSE (traffic, CVR, ROAS, organic) ══════════════════════
+  if (mtd && lfm) {
+    const rClicks   = ratio(mtd.gross_clicks, lfm.gross_clicks);
+    const rAdClicks = ratio(mtd.ad_clicks,    lfm.ad_clicks);
+    const orgCMtd   = (mtd.gross_clicks || 0) - (mtd.ad_clicks || 0);
+    const orgCLfm   = (lfm.gross_clicks || 0) - (lfm.ad_clicks || 0);
+    const rOrgC     = orgCLfm > 0 ? ratio(orgCMtd, orgCLfm) : null;
+    const rCvr      = ratio(mtd.gross_cvr,  lfm.gross_cvr);
+    const rAdRoas   = ratio(mtd.ad_roas,    lfm.ad_roas);
+    const orgSMtd   = (mtd.gross_sales || 0) - (mtd.ad_sales || 0);
+    const orgSLfm   = (lfm.gross_sales || 0) - (lfm.ad_sales || 0);
+    const rOrgS     = (orgSMtd >= 0 && orgSLfm > 0) ? ratio(orgSMtd, orgSLfm) : null;
+    const orgPctMtd = mtd.gross_sales > 0 ? orgSMtd / mtd.gross_sales * 100 : null;
+    const orgPctLfm = lfm.gross_sales > 0 ? orgSLfm / lfm.gross_sales * 100 : null;
+    const orgPctDelta = (orgPctMtd != null && orgPctLfm != null) ? orgPctMtd - orgPctLfm : null;
+
+    const trafficDown = rClicks  != null && rClicks  < TREND_DOWN;
+    const cvrDown     = rCvr     != null && rCvr     < CVR_DROP;
+    const roasDown    = rAdRoas  != null && rAdRoas  < ROAS_DROP;
+    const adDown      = rAdClicks!= null && rAdClicks< TREND_DOWN;
+    const orgDown     = rOrgC    != null && rOrgC    < TREND_DOWN;
+    const trafficSurge= rClicks  != null && rClicks  > TRAFFIC_SURGE;
+
+    if (trafficDown && cvrDown) {
+      lines.push(`Both traffic (${pctStr(rClicks)} clicks) and CVR (${pctStr(rCvr)}) down — broad listing issue. Check keyword coverage, content, and pricing.`);
+    } else if (trafficDown) {
+      if (adDown && orgDown) {
+        lines.push(`Traffic down across both paid (${pctStr(rAdClicks)}) and organic (${pctStr(rOrgC)}) — possible listing suppression or category rank drop.`);
+      } else if (adDown && !orgDown) {
+        lines.push(`Ad traffic down (${pctStr(rAdClicks)} clicks) while organic holds — check budget, bids, and campaign status.`);
+      } else if (orgDown && !adDown) {
+        lines.push(`Organic traffic down (${pctStr(rOrgC)} clicks) while ads are stable — check keyword rank and listing indexing.`);
+        if (severity !== 'alert') severity = 'alert';
+      }
+    } else if (trafficSurge && cvrDown) {
+      lines.push(`High traffic growth (${pctStr(rClicks)}) but CVR has dropped sharply (${pctStr(rCvr)}) — keyword relevance issue; broad terms may be diluting conversion.`);
+      if (severity !== 'alert') severity = 'warning';
+    } else if (cvrDown) {
+      lines.push(`Traffic stable but CVR dropped ${pctStr(rCvr)} — conversion issue. Review pricing, reviews, and listing content.`);
+      if (severity !== 'alert') severity = 'warning';
+    } else if (roasDown) {
+      lines.push(`ROAS has deteriorated ${pctStr(rAdRoas)} vs LFM (now ${mtd.ad_roas != null ? mtd.ad_roas.toFixed(2)+'x' : '—'}) — review bid efficiency.`);
+      if (severity === 'neutral' || severity === 'good') severity = 'warning';
+    } else if (orgPctDelta != null && orgPctDelta < -8) {
+      lines.push(`Organic share down ${Math.abs(orgPctDelta).toFixed(0)}pp vs LFM — increasing paid dependency. Check organic rank.`);
+      if (severity === 'good') severity = 'warning';
+    } else if (orgPctDelta != null && orgPctDelta > 8 && severity === 'good') {
+      lines.push(`Organic share up ${orgPctDelta.toFixed(0)}pp vs LFM — strong organic momentum. Consider increasing ad investment.`);
+    }
+  }
+
+  return { lines: lines.slice(0, 3), severity };
+}
+
+// ─── CITY DIAGNOSIS — appended to panel separately ───────────────────────────
+function buildCityDiagnosis(channel, skuCode, proRatio) {
+  // Only for QC platforms
+  const qcPlatforms = ['Blinkit','Zepto','Instamart'];
+  if (!qcPlatforms.includes(channel)) return '';
+
+  // Find city rows for this SKU on this channel
+  const cityRows = CITY_DATA.filter(r =>
+    r.Channel === channel &&
+    (r.SKU_CODE === skuCode || r.SKU_CODE === skuCode.trim())
+  );
+  if (!cityRows.length) return '';
+
+  // Pro-rate LM and L3M to MTD day count
+  const ratio_ = proRatio || 1;
+  const totalMtd = cityRows.reduce((s,r) => s + (r.Actual_Qty||0), 0);
+
+  // Flag cities with significant drops vs LM pro-rated, min volume threshold
+  const MIN_SHARE = 0.10; // city must be ≥10% of SKU volume
+  const DROP_THRESH = 0.80; // MTD < 80% of LM pro-rated
+
+  const cityData = cityRows.map(r => {
+    const mtdQty  = r.Actual_Qty || 0;
+    const lmPro   = (r.LM_Qty  || 0) * ratio_;
+    const l3mPro  = (r.L3M_Qty || 0) * ratio_ / 3;
+    const vsLm    = lmPro  > 0 ? mtdQty / lmPro  : null;
+    const vsL3m   = l3mPro > 0 ? mtdQty / l3mPro : null;
+    const share   = totalMtd > 0 ? mtdQty / totalMtd : 0;
+    return { city: r.City, mtdQty, lmPro, vsLm, vsL3m, share };
+  }).filter(c => c.mtdQty > 0 || c.lmPro > 0)
+    .sort((a,b) => b.mtdQty - a.mtdQty);
+
+  if (!cityData.length) return '';
+
+  // Identify significant drop cities
+  const dropCities = cityData.filter(c =>
+    c.vsLm != null && c.vsLm < DROP_THRESH && c.share >= MIN_SHARE
+  ).sort((a,b) => a.vsLm - b.vsLm); // worst first
+
+  const strongCities = cityData.filter(c =>
+    c.vsLm != null && c.vsLm >= 1.10 && c.share >= MIN_SHARE
+  ).sort((a,b) => b.vsLm - a.vsLm);
+
+  // Build diagnosis text
+  let diagText = '';
+  if (dropCities.length) {
+    const worst = dropCities[0];
+    const pct   = Math.round((1 - worst.vsLm) * 100);
+    const others = dropCities.slice(1).map(c => c.city).join(', ');
+    diagText = `${worst.city} is driving the drop — MTD units at ${Math.round(worst.vsLm*100)}% of last month (−${pct}%)`;
+    if (others) diagText += `; also weak in ${others}`;
+    diagText += `. Focus geo-specific levers here rather than blanket action.`;
+  } else if (strongCities.length) {
+    diagText = `${strongCities.map(c=>c.city).join(', ')} ${strongCities.length===1?'is':'are'} performing ahead of last month — double down in these geographies.`;
+  } else {
+    diagText = `City performance is broadly consistent vs last month — no single geography driving the gap.`;
+  }
+
+  // Build city table rows
+  const cityRows_ = cityData.slice(0, 8).map(c => {
+    const isWeak   = c.vsLm != null && c.vsLm < DROP_THRESH && c.share >= MIN_SHARE;
+    const isStrong = c.vsLm != null && c.vsLm >= 1.10 && c.share >= MIN_SHARE;
+    const dotCol   = isWeak ? 'var(--red)' : isStrong ? 'var(--green)' : 'var(--amber)';
+    const pctStr_  = c.vsLm != null ? ((c.vsLm-1)*100).toFixed(0)+'%' : '—';
+    const sign     = c.vsLm != null && c.vsLm >= 1 ? '+' : '';
+    return `<tr>
+      <td style="text-align:left;padding:5px 12px;font-size:11px;color:var(--brown)">
+        <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${dotCol};margin-right:6px;vertical-align:middle"></span>
+        ${c.city}
+      </td>
+      <td style="padding:5px 12px;font-size:11px;font-family:'JetBrains Mono',monospace;text-align:right">${fmtQ(Math.round(c.mtdQty))}</td>
+      <td style="padding:5px 12px;font-size:11px;font-family:'JetBrains Mono',monospace;text-align:right;color:var(--muted)">${fmtQ(Math.round(c.lmPro))}</td>
+      <td style="padding:5px 12px;font-size:11px;font-family:'JetBrains Mono',monospace;text-align:right;color:${isWeak?'var(--red)':isStrong?'var(--green)':'var(--brown)'};font-weight:600">${sign}${pctStr_}</td>
+      <td style="padding:5px 12px;font-size:11px;font-family:'JetBrains Mono',monospace;text-align:right;color:var(--muted)">${(c.share*100).toFixed(0)}%</td>
+    </tr>`;
+  }).join('');
+
+  // Unique ID for this city table toggle
+  const cityToggleId = 'city-tbl-' + channel.replace(/\s/g,'') + '-' + Date.now();
+
+  return `
+    <div style="margin-top:10px;border-top:1px solid rgba(0,0,0,.08);padding-top:8px">
+      <div style="font-size:11px;color:var(--brown-mid);line-height:1.6;margin-bottom:6px;display:flex;gap:7px;align-items:flex-start">
+        <span style="flex-shrink:0">›</span><span>${diagText}</span>
+      </div>
+      <div onclick="(function(el){const t=document.getElementById('${cityToggleId}');const open=t.style.display!=='none';t.style.display=open?'none':'block';el.querySelector('.city-chev').textContent=open?'▸ View city breakdown':'▾ Hide city breakdown';})(this)"
+           style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--terra);font-family:'JetBrains Mono',monospace;padding:3px 0;user-select:none">
+        <span class="city-chev">▸ View city breakdown</span>
+        <span style="font-size:8px;opacity:.6">(${cityData.length} cities)</span>
+      </div>
+      <div id="${cityToggleId}" style="display:none;margin-top:6px;border-radius:6px;overflow:hidden;border:1px solid rgba(0,0,0,.08)">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:var(--cream-mid)">
+            <th style="padding:5px 12px;font-size:8.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left">City</th>
+            <th style="padding:5px 12px;font-size:8.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:right">MTD Qty</th>
+            <th style="padding:5px 12px;font-size:8.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:right">LM Pro</th>
+            <th style="padding:5px 12px;font-size:8.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:right">vs LM</th>
+            <th style="padding:5px 12px;font-size:8.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:right">Share</th>
+          </tr></thead>
+          <tbody>${cityRows_}</tbody>
+        </table>
+      </div>
+    </div>`;  // end city section
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+function ppSetSort(period) {
+  if (_ppSortKey === period) _ppSortDir = _ppSortDir === 'desc' ? 'asc' : 'desc';
+  else { _ppSortKey = period; _ppSortDir = 'desc'; }
+  renderPerfPanel();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closePerfPanel();
+    document.getElementById('intel-overlay')?.classList.remove('open');
+  }
+});
+
+// ─── Update Intel popup to surface live perf signal in Lows ──────────────────
+function getIntelPerfSignal(channel, catSkus) {
+  // For a category's SKUs, compute the dominant perf signal
+  if (!PERF_LOADED) return null;
+  const hasPerfCh = ['Amazon','Nykaa','Flipkart','Myntra'].includes(channel);
+  if (!hasPerfCh) return null;
+
+  let totalGrossUnits=0, totalOrgUnits=0, totalAdUnits=0, count=0;
+  let totalGrossUnitsMtd=0, totalGrossUnitsLfm=0;
+
+  catSkus.forEach(r => {
+    const mtd = derivePerfMetrics(getPerfRow(channel, r.SKU, 'MTD'));
+    const lfm = derivePerfMetrics(getPerfRow(channel, r.SKU, 'LFM'));
+    if (!mtd) return;
+    totalGrossUnitsMtd += mtd.GrossUnits;
+    if (lfm) totalGrossUnitsLfm += lfm.GrossUnits;
+    totalGrossUnits += mtd.GrossUnits;
+    totalOrgUnits   += mtd.OrgUnits || 0;
+    totalAdUnits    += mtd.AdUnits  || 0;
+    count++;
+  });
+
+  if (!count || totalGrossUnitsLfm === 0) return null;
+  const trend = totalGrossUnitsMtd / totalGrossUnitsLfm * 100;
+  const orgPct = totalGrossUnits > 0 ? totalOrgUnits / totalGrossUnits * 100 : null;
+
+  if (trend >= 90) return null; // no signal worth showing
+  const adPct = totalGrossUnits > 0 ? totalAdUnits / totalGrossUnits * 100 : null;
+  if (orgPct !== null && orgPct < 50 && adPct !== null && adPct > 60) {
+    return `🔍 Perf signal: Gross units at ${trend.toFixed(0)}% of LFM — heavily ad-dependent (${adPct.toFixed(0)}% ad-driven). Organic gap suspected.`;
+  }
+  return `🔍 Perf signal: Gross units at ${trend.toFixed(0)}% of LFM. Check Performance funnel for traffic/CVR breakdown.`;
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─── CHANNEL INTELLIGENCE POPUP ─────────────────────────────────────────────
+
+// Thresholds — "significant" means clearly outside normal band
+const INTEL = {
+  // Plan context thresholds (plan vs LM/L3M pro-rated)
+  PLAN_NORMAL_LO:  90,   // 90–110% = plan is in line with last month
+  PLAN_NORMAL_HI: 110,
+  PLAN_L3M_LO:     90,   // 90–115% = plan comparable to L3M average
+  PLAN_L3M_HI:    115,
+  // Coverage: include categories that together explain this % of total drag/surplus
+  COVERAGE_TARGET: 0.80,
+  // Hard floor: category must explain at least this % of channel pro-rev to show up
+  MIN_SHARE_OF_PROREV: 0.003,  // 0.3% of channel — filters true noise only
+  // SKU noise filter: SKU pro-rev must be at least this to appear in SKU list
+  MIN_SKU_PRO:  1000,
+  // Highs: achievement must beat plan by at least this to be a "high"
+  HIGH_ACH_FLOOR: 103,
+  // Lows: achievement must be below this — excludes near-plan misses
+  LOW_ACH_CEIL:   98,
+};
+
+function openIntelModal(channelName) {
+  const m = currentMetric;   // 'revenue' or 'quantity'
+  const isRev = m === 'revenue';
+
+  // ── 1. Get all rows for this channel ──────────────────────────────────────
+  const chRows = ALL_DATA.filter(r => r.Channel === channelName);
+  if (!chRows.length) return;
+
+  // ── 2. Channel-level summary ───────────────────────────────────────────────
+  const chPlan   = chRows.reduce((s,r)=>s+(isRev?r.Planned_Revenue:r.Planned_Qty),0);
+  const chPro    = chRows.reduce((s,r)=>s+(isRev?r.Prorata_Planned_Revenue:r.Prorata_Planned_Qty),0);
+  const chAct    = chRows.reduce((s,r)=>s+(isRev?r.Actual_Revenue:r.Actual_Qty),0);
+  const chLM     = chRows.reduce((s,r)=>s+(isRev?r.LM_Revenue:r.LM_Qty),0);
+  const chL3M    = chRows.reduce((s,r)=>s+(isRev?r.L3M_Revenue/3:r.L3M_Qty/3),0);
+  const chProRat = chRows[0]?._proRatio || 1;
+  const chLMPro  = chLM * chProRat;
+  const chL3MPro = chL3M * chProRat;
+  const chAch    = chPro > 0 ? chAct / chPro * 100 : 0;
+  const chVsLM   = chLMPro > 0 ? chPro / chLMPro * 100 : null;
+  const chVsL3M  = chL3MPro > 0 ? chPro / chL3MPro * 100 : null;
+
+  // ── 3. Plan context for the channel ───────────────────────────────────────
+  function planContext(vsLM, vsL3M) {
+    // Returns {tag, label, action} following your diagnostic tree
+    const lmNormal = vsLM !== null && vsLM >= INTEL.PLAN_NORMAL_LO && vsLM <= INTEL.PLAN_NORMAL_HI;
+    const l3mComp  = vsL3M !== null && vsL3M >= INTEL.PLAN_L3M_LO  && vsL3M <= INTEL.PLAN_L3M_HI;
+    if (lmNormal) {
+      return { tag:'normal', label:`Plan ≈ LM (${vsLM!=null?vsLM.toFixed(0):'—'}%)`, action:'Check Performance Dashboard & overall traffic' };
+    } else if (!lmNormal && l3mComp) {
+      return { tag:'moderate', label:`Plan > LM but ≈ L3M (${vsL3M!=null?vsL3M.toFixed(0):'—'}%)`, action:'Check Performance Dashboard & overall traffic' };
+    } else {
+      const pct = vsLM != null ? vsLM.toFixed(0) : (vsL3M != null ? vsL3M.toFixed(0) : '—');
+      return { tag:'stretch', label:`Plan significantly higher than LM & L3M (${pct}%)`, action:'Investigate: why was this target taken? Check growth plan rationale' };
+    }
+  }
+  const chPlanCtx = planContext(chVsLM, chVsL3M);
+
+  // ── 4. Aggregate by category for this channel ──────────────────────────────
+  const catMap = {};
+  chRows.forEach(r => {
+    const cat = r.Category || 'Unknown';
+    if (!catMap[cat]) catMap[cat] = {
+      name: cat, skus: [],
+      proRev:0,actRev:0,lmRev:0,l3mRev:0,
+      proQty:0,actQty:0,lmQty:0,l3mQty:0,
+    };
+    const c = catMap[cat];
+    c.proRev += r.Prorata_Planned_Revenue||0;
+    c.actRev += r.Actual_Revenue||0;
+    c.lmRev  += r.LM_Revenue||0;
+    c.l3mRev += r.L3M_Revenue/3||0;
+    c.proQty += r.Prorata_Planned_Qty||0;
+    c.actQty += r.Actual_Qty||0;
+    c.lmQty  += r.LM_Qty||0;
+    c.l3mQty += r.L3M_Qty/3||0;
+    c.skus.push(r);
+  });
+  const cats = Object.values(catMap).map(c => {
+    const pro  = isRev ? c.proRev  : c.proQty;
+    const act  = isRev ? c.actRev  : c.actQty;
+    const lm   = isRev ? c.lmRev   : c.lmQty;
+    const l3m  = isRev ? c.l3mRev  : c.l3mQty;
+    const ach  = pro > 0 ? act/pro*100 : 0;
+    const delta= act - pro;
+    const plan = isRev ? c.skus.reduce((s,r)=>s+r.Planned_Revenue,0) : c.skus.reduce((s,r)=>s+r.Planned_Qty,0);
+    const lmPro  = lm * chProRat;
+    const l3mPro = l3m * chProRat;
+    const vsLM   = lmPro  > 0 ? pro/lmPro*100  : null;
+    const vsL3M  = l3mPro > 0 ? pro/l3mPro*100 : null;
+    return { ...c, pro, act, lm, l3m, ach, delta, plan, lmPro, l3mPro, vsLM, vsL3M };
+  });
+
+  // ── 5. Rank by absolute delta → coverage-based significance ──────────────
+  // PRIMARY rule: sort by absolute revenue/qty delta, take categories that
+  // together explain COVERAGE_TARGET (80%) of total drag or surplus.
+  // SECONDARY filter: category must have at least MIN_SHARE_OF_PROREV of
+  // channel pro-rev — this removes true noise (plan of ₹500 etc.)
+  // Achievement filter is loose (< 98% for lows, > 103% for highs) so we
+  // don't drop meaningful large-revenue categories like Cold Pressed Oil at 83%.
+
+  const minCatPro = isRev ? chPro * INTEL.MIN_SHARE_OF_PROREV : chPro * INTEL.MIN_SHARE_OF_PROREV;
+
+  // All negative-delta categories (underperforming), sorted worst first
+  const allLows  = cats
+    .filter(c => c.delta < 0 && c.ach < INTEL.LOW_ACH_CEIL && c.pro > minCatPro)
+    .sort((a,b) => a.delta - b.delta);
+
+  // All positive-delta categories (outperforming), sorted best first
+  const allHighs = cats
+    .filter(c => c.delta > 0 && c.ach > INTEL.HIGH_ACH_FLOOR && c.pro > minCatPro)
+    .sort((a,b) => b.delta - a.delta);
+
+  // Coverage selection: take categories until 80% of total drag/surplus is covered
+  function selectByCoverage(sorted, totalMagnitude) {
+    if (!sorted.length || totalMagnitude === 0) return sorted;
+    let cumulative = 0;
+    const selected = [];
+    for (const c of sorted) {
+      selected.push(c);
+      cumulative += Math.abs(c.delta);
+      if (cumulative / totalMagnitude >= INTEL.COVERAGE_TARGET) break;
+      // Always show at least top 3, stop after covering 80% or 12 categories
+      if (selected.length >= 12) break;
+    }
+    return selected;
+  }
+
+  const totalNegDelta = allLows.reduce((s,c) => s + Math.abs(c.delta), 0);
+  const totalPosDelta = allHighs.reduce((s,c) => s + c.delta, 0);
+
+  const lows  = selectByCoverage(allLows,  totalNegDelta);
+  const highs = selectByCoverage(allHighs, totalPosDelta);
+
+  // Coverage % for footer display
+  const lowsCoverage  = totalNegDelta > 0 ? lows.reduce((s,c)=>s+Math.abs(c.delta),0)  / totalNegDelta * 100 : 100;
+  const highsCoverage = totalPosDelta > 0 ? highs.reduce((s,c)=>s+c.delta,0) / totalPosDelta * 100 : 100;
+
+  // ── 6. Render helpers ──────────────────────────────────────────────────────
+  const color = chColor(channelName);
+
+  function achClass(p) {
+    if (p > 100)  return 'ach-good';
+    if (p >= 80)  return 'ach-mid';
+    return 'ach-ok';
+  }
+  function planTagHtml(ctx) {
+    const cls = ctx.tag === 'normal' ? 'normal' : ctx.tag === 'moderate' ? '' : 'stretch';
+    return `<span class="intel-plan-tag ${cls}">${ctx.label}</span>`;
+  }
+  function skuRowsHtml(catObj, isLow) {
+    const skus = [...catObj.skus]
+      .map(r => {
+        const sp  = isRev ? r.Prorata_Planned_Revenue : r.Prorata_Planned_Qty;
+        const sa  = isRev ? r.Actual_Revenue          : r.Actual_Qty;
+        const sd  = sa - sp;
+        const sac = sp > 0 ? sa/sp*100 : 0;
+        return { name:r.SKU, skuCode:r.SKU_CODE||r.SKU, cat:r.Category, ach:sac, delta:sd, pro:sp };
+      })
+      .filter(s => s.pro > INTEL.MIN_SKU_PRO)
+      .sort((a,b) => isLow ? a.delta - b.delta : b.delta - a.delta); // worst→best for lows, best→worst for highs
+
+    if (!skus.length) return '<div class="intel-action"><span class="intel-action-icon">—</span><span>No SKU detail</span></div>';
+    const fmtD = isRev ? d => (d>=0?'+':'')+fmt(d) : d => (d>=0?'+':'')+fmtQ(Math.round(d));
+    return skus.map(s => {
+      const safeDisp = (s.name||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      const safeCode = (s.skuCode||s.name||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      const safeCh   = channelName.replace(/'/g,"\\'");
+      const safeCat  = (isLow ? 'Lows' : 'Highs');
+      return `
+      <div class="intel-sku-row" style="cursor:pointer" 
+           onclick="closeIntelAndOpenPerf('${safeCh}','${safeDisp}','${safeCode}','${s.cat||safeDisp}')"
+           title="Click to open performance panel">
+        <span class="intel-sku-name" style="color:var(--terra);text-decoration:underline dotted">${s.name}</span>
+        <span class="intel-sku-ach ${achClass(s.ach)}">${fmtPct(s.ach)}</span>
+        <span class="intel-sku-delta" style="color:${s.delta>=0?'var(--green)':'var(--red)'}">${fmtD(s.delta)}</span>
+      </div>`;
+    }).join('');
+  }
+  function actionForLow(ctx, c) {
+    const fmtFn = isRev ? fmt : d => fmtQ(Math.round(d));
+    const dragStr = fmtFn(Math.abs(c.delta));
+    const perfSignal = getIntelPerfSignal(channelName, c.skus);
+    const perfLine = perfSignal
+      ? `<div class="intel-action" style="background:rgba(155,110,16,.06)"><span class="intel-action-icon">📡</span><span class="intel-action-text">${perfSignal} — <em style="color:var(--terra);cursor:pointer" onclick="openPerfPanel('${channelName}',c.skus[0]?.SKU||'',(c.skus[0]?.SKU_CODE||c.skus[0]?.SKU||''),'${c.name}')">click any SKU row for full funnel</em></span></div>`
+      : '';
+    if (ctx.tag === 'normal' || ctx.tag === 'moderate') {
+      return `<div class="intel-action"><span class="intel-action-icon">🔍</span><span class="intel-action-text"><strong>Check Performance funnel:</strong> traffic quality, CVR & visibility for this category (dragging ${dragStr})</span></div>${perfLine}`;
+    }
+    return `<div class="intel-action"><span class="intel-action-icon">⚠️</span><span class="intel-action-text"><strong>Validate growth plan first:</strong> target is significantly above recent run-rate — confirm rationale before optimising ads</span></div>
+            <div class="intel-action"><span class="intel-action-icon">🔍</span><span class="intel-action-text"><strong>Check Performance funnel:</strong> traffic & CVR signals (dragging ${dragStr})</span></div>${perfLine}`;
+  }
+  function actionForHigh(c) {
+    const fmtFn = isRev ? fmt : d => fmtQ(Math.round(d));
+    const surplusStr = fmtFn(c.delta);
+    const pushMsg = c.ach > 150 
+      ? `Exceptional ${c.ach.toFixed(0)}% achievement — double down: increase budget, improve shelf presence`
+      : `${c.ach.toFixed(0)}% achievement — push further: raise bids, add inventory, expand keywords`;
+    return `<div class="intel-action"><span class="intel-action-icon">🚀</span><span class="intel-action-text"><strong>Opportunity (${surplusStr} surplus):</strong> ${pushMsg}</span></div>
+            <div class="intel-action"><span class="intel-action-icon">📦</span><span class="intel-action-text"><strong>Inventory check:</strong> Confirm adequate stock — shortfall here will cap the upside</span></div>`;
+  }
+
+  function buildCatBlock(c, isLow, idx) {
+    const fmtFn = isRev ? fmt : d => fmtQ(Math.round(d));
+    const ctx = planContext(c.vsLM, c.vsL3M);
+    const catDeltaHtml = `<span class="intel-cat-delta ${c.delta>=0?'pos':'neg'}">${c.delta>=0?'+':''}${fmtFn(c.delta)}</span>`;
+    const catAchHtml   = `<span class="intel-cat-ach ${achClass(c.ach)}">${fmtPct(c.ach)}</span>`;
+    const side = isLow ? 'low' : 'high';
+    const blockId = `intel-cat-${side}-${idx}`;
+    const skuId   = `intel-sku-${side}-${idx}`;
+    return `
+      <div class="intel-cat-block">
+        <div class="intel-cat-header" onclick="toggleIntelCat('${skuId}','${blockId}-chev')">
+          <span class="intel-cat-name">${c.name}</span>
+          ${catAchHtml}
+          ${catDeltaHtml}
+          <span class="intel-cat-chevron" id="${blockId}-chev">▾</span>
+        </div>
+        <div class="intel-plan-ctx">
+          ${planTagHtml(ctx)}
+          <span class="intel-plan-text">Plan vs LM: ${c.vsLM!=null?c.vsLM.toFixed(0)+'%':'—'} · vs L3M: ${c.vsL3M!=null?c.vsL3M.toFixed(0)+'%':'—'}</span>
+        </div>
+        ${isLow ? actionForLow(ctx, c) : actionForHigh(c)}
+        <div class="intel-sku-list" id="${skuId}">
+          ${skuRowsHtml(c, isLow)}
+        </div>
+      </div>`;
+  }
+
+  // ── 7. Populate modal ──────────────────────────────────────────────────────
+  document.getElementById('intel-platform-name').textContent = channelName;
+
+  // Header pills
+  const achCls = chAch > 100 ? 'ach-good' : chAch >= 80 ? 'ach-mid' : 'ach-ok';
+  document.getElementById('intel-header-pills').innerHTML = `
+    <span class="intel-meta-pill ${achCls}">Ach: ${fmtPct(chAch)}</span>
+    <span class="intel-meta-pill">Actual: ${isRev?fmt(chAct):fmtQ(Math.round(chAct))}</span>
+    <span class="intel-meta-pill">Pro-rata: ${isRev?fmt(chPro):fmtQ(Math.round(chPro))}</span>
+  `;
+
+  // Meta bar
+  document.getElementById('intel-meta-bar').innerHTML = `
+    <span class="intel-meta-note">Plan context (channel):</span>
+    <span class="intel-meta-pill ${chPlanCtx.tag==='normal'?'ach-good':chPlanCtx.tag==='moderate'?'ach-mid':'ach-ok'}">${chPlanCtx.label}</span>
+    <span class="intel-meta-note" style="margin-left:4px">${chPlanCtx.action}</span>
+  `;
+
+  // Lows panel
+  const lowsBody = document.getElementById('intel-lows-body');
+  document.getElementById('intel-lows-count').textContent = lows.length;
+  if (lows.length) {
+    lowsBody.innerHTML = lows.map((c,i) => buildCatBlock(c, true, i)).join('');
+  } else {
+    lowsBody.innerHTML = `<div class="intel-empty">✅ No significant underperformers<br><span style="font-size:9px">All categories within acceptable range</span></div>`;
+  }
+
+  // Highs panel
+  const highsBody = document.getElementById('intel-highs-body');
+  document.getElementById('intel-highs-count').textContent = highs.length;
+  if (highs.length) {
+    highsBody.innerHTML = highs.map((c,i) => buildCatBlock(c, false, i)).join('');
+  } else {
+    highsBody.innerHTML = `<div class="intel-empty">— No categories significantly outperforming<br><span style="font-size:9px">All categories near or below plan</span></div>`;
+  }
+
+  // Footer
+  const totalDelta = isRev ? chAct - chPro : chAct - chPro;
+  const fmtFn = isRev ? fmt : d => fmtQ(Math.round(d));
+  document.getElementById('intel-footer').innerHTML = `
+    <span class="intel-footer-stat">Channel delta: <strong style="color:${totalDelta>=0?'var(--green)':'var(--red)'}">${totalDelta>=0?'+':''}${fmtFn(totalDelta)}</strong></span>
+    <span class="intel-footer-stat" style="margin-left:8px">vs LM pro-rated: <strong>${chVsLM!=null?chVsLM.toFixed(0)+'%':'—'}</strong></span>
+    <span class="intel-footer-stat">vs L3M pro-rated: <strong>${chVsL3M!=null?chVsL3M.toFixed(0)+'%':'—'}</strong></span>
+    <span class="intel-footer-stat" style="margin-left:auto;font-size:8.5px;opacity:.7">${lows.length} shown of ${allLows.length} lows (${lowsCoverage.toFixed(0)}% drag covered) · ${highs.length} shown of ${allHighs.length} highs (${highsCoverage.toFixed(0)}% surplus covered) · ${cats.length} categories total</span>
+  `;
+
+  document.getElementById('intel-overlay').classList.add('open');
+}
+
+function closeIntelModal(e) {
+  if (e && e.target !== document.getElementById('intel-overlay')) return;
+  document.getElementById('intel-overlay').classList.remove('open');
+}
+
+function closeIntelAndOpenPerf(channel, skuDisplay, skuCode, category) {
+  // Close intel popup then open perf panel for the clicked SKU
+  document.getElementById('intel-overlay').classList.remove('open');
+  // Small delay so the close animation doesn't clash with panel opening
+  setTimeout(() => openPerfPanel(channel, skuDisplay, skuCode, category), 120);
+}
+
+function toggleIntelCat(skuId, chevId) {
+  const skuEl  = document.getElementById(skuId);
+  const chevEl = document.getElementById(chevId);
+  if (!skuEl) return;
+  const isOpen = skuEl.classList.contains('open');
+  skuEl.classList.toggle('open', !isOpen);
+  if (chevEl) chevEl.classList.toggle('open', !isOpen);
+}
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('intel-overlay')?.classList.remove('open');
+});
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─── Home — clear all filters and go to Overview ───
+function goHome() {
+  if (!ALL_DATA.length) return; // no data loaded yet, do nothing
+  // Clear all filters first (this triggers applyFilters → render)
+  ['ms-channel','ms-category','ms-ach'].forEach(id => {
+    msState[id].selected.clear();
+    renderMsList(id, '');
+    updateMsTrigger(id);
+  });
+  tableSearchVal = '';
+  renderActiveFilters();
+  // Switch to overview
+  currentView = 'overview';
+  document.querySelectorAll('[data-view]').forEach(e => e.classList.remove('active'));
+  const ovBtn = document.querySelector('[data-view="overview"]');
+  if (ovBtn) ovBtn.classList.add('active');
+  // Re-filter with cleared state and render
+  filtered = [...ALL_DATA];
+  applySort();
+  currentPage = 1;
+  render();
+}
+// Boot
+loadData();
+</script>
+</body>
+</html>
