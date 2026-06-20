@@ -1,0 +1,64 @@
+name: Update Dashboard Data
+
+on:
+  schedule:
+    # Runs at 7:30 AM IST every day (02:00 UTC)
+    - cron: "0 2 * * *"
+  workflow_dispatch:   # also allows manual trigger from GitHub UI
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to commit processed.json back to the repo
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # ── Download the Google Sheet as a single xlsx ───────────────────────────
+      # One Google Sheet, three tabs:
+      #   Tab 1 = Sales Master
+      #   Tab 2 = City Master
+      #   Tab 3 = Ads Data
+      #
+      # Setup (one-time):
+      #   1. Open your Google Sheet
+      #   2. File → Share → Publish to web
+      #   3. Select "Entire Document" and "Microsoft Excel (.xlsx)"
+      #   4. Click Publish and copy the URL
+      #   5. Add it as a GitHub repository secret named SHEET_URL
+      #      (Settings → Secrets and variables → Actions → New repository secret)
+      #
+      # The URL format is:
+      #   https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=xlsx
+
+      - name: Create data directory
+        run: mkdir -p data output
+
+      - name: Download Google Sheet
+        run: |
+          curl -L "${{ secrets.SHEET_URL }}" -o data/dashboard.xlsx
+          echo "Sheet downloaded: $(du -sh data/dashboard.xlsx | cut -f1)"
+
+      # ── Run the processing script ────────────────────────────────────────────
+      - name: Run process.py
+        run: |
+          python process.py data/dashboard.xlsx output/processed.json
+
+      # ── Commit the updated output ────────────────────────────────────────────
+      - name: Commit processed.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/processed.json
+          git diff --staged --quiet || git commit -m "chore: update processed.json [$(date -u '+%Y-%m-%d %H:%M UTC')]"
+          git push
