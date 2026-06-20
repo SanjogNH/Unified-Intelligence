@@ -1266,9 +1266,9 @@ async function loadData() {
 
   } catch(e) {
     document.getElementById('loading-zone').innerHTML =
-      '<div style="color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center">' +
+      `<div style="color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center">`+
       'Failed to load data: ' + e.message +
-      '<br><span style="color:var(--muted)">Check output/ folder or run the GitHub Action</span></div>';
+      `<br><span style="color:var(--muted)">Check output/ folder or run the GitHub Action</span></div>`;
     console.error('loadData error:', e);
   }
 }
