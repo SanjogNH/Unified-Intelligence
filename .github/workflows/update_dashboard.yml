@@ -39,6 +39,8 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add output/index.json output/skus.json output/city.json
+          # Stage everything under output/: latest-copy at root, per-month
+          # subdirectories (output/YYYY-MM/), and the months.json manifest.
+          git add output/
           git diff --staged --quiet || git commit -m "chore: update dashboard data [$(date -u '+%Y-%m-%d %H:%M UTC')]"
           git push
