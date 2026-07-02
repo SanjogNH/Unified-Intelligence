@@ -587,13 +587,187 @@ def process_city_sheet(df_city: pd.DataFrame) -> list:
 
 # ─── Main pipeline ────────────────────────────────────────────────────────────
 
+# ─── Month detection & slicing ────────────────────────────────────────────────
+#
+# When each sheet has a `Month` column (format YYYY-MM), we process one month
+# at a time, generating a full output bundle per month. When it's absent,
+# we fall back to single-month mode and derive the tag from MTD Updated Till.
+
+def _normalise_month(val):
+    """Coerce any month-ish value to a canonical YYYY-MM string, or None."""
+    if val is None:
+        return None
+    if isinstance(val, float) and math.isnan(val):
+        return None
+    # Already a string like "2026-06" or "2026-6" or "06/2026"
+    if isinstance(val, str):
+        s = val.strip()
+        if not s:
+            return None
+        # Try common formats
+        for fmt in ("%Y-%m", "%Y/%m", "%m-%Y", "%m/%Y", "%b %Y", "%B %Y"):
+            try:
+                return datetime.strptime(s, fmt).strftime("%Y-%m")
+            except ValueError:
+                pass
+        # Try free parse
+        try:
+            return pd.to_datetime(s).strftime("%Y-%m")
+        except Exception:
+            return None
+    # datetime / Timestamp
+    try:
+        return pd.to_datetime(val).strftime("%Y-%m")
+    except Exception:
+        return None
+
+
+def _find_month_column(df: pd.DataFrame):
+    """Return the actual column name in df that represents the Month tag,
+    matching case- and whitespace-insensitively. Returns None if absent."""
+    if df is None or df.empty:
+        return None
+    for c in df.columns:
+        if str(c).strip().lower() == "month":
+            return c
+    return None
+
+
+def _slice_by_month(df: pd.DataFrame, month_tag: str):
+    """Return a df filtered to rows whose Month column matches month_tag.
+    If no Month column exists, return the df unchanged."""
+    col = _find_month_column(df)
+    if col is None:
+        return df
+    normalised = df[col].apply(_normalise_month)
+    return df[normalised == month_tag].copy()
+
+
+def _detect_months(df_sales: pd.DataFrame, df_city: pd.DataFrame, df_ads: pd.DataFrame):
+    """Discover the set of months present in the raw sheets.
+
+    Returns (months_sorted_asc, latest_month, source):
+      - months_sorted_asc: list[str] of YYYY-MM tags
+      - latest_month: str, the most recent
+      - source: "column" if any sheet has a Month column, else "mtd_date"
+        (in which case months_sorted_asc has exactly one entry derived from
+         the sales sheet's MTD Updated Till (Date) column).
+    """
+    all_months = set()
+    has_col = False
+    for df in (df_sales, df_city, df_ads):
+        col = _find_month_column(df)
+        if col is not None:
+            has_col = True
+            for v in df[col].dropna().unique():
+                m = _normalise_month(v)
+                if m:
+                    all_months.add(m)
+
+    if has_col:
+        months = sorted(all_months)
+        return months, (months[-1] if months else None), "column"
+
+    # Fallback: derive single month from sales MTD date
+    try:
+        dates = pd.to_datetime(df_sales["MTD Updated Till (Date)"], errors="coerce")
+        d = dates.dropna().max()
+        month = d.strftime("%Y-%m") if pd.notna(d) else datetime.utcnow().strftime("%Y-%m")
+    except Exception:
+        month = datetime.utcnow().strftime("%Y-%m")
+    return [month], month, "mtd_date"
+
+
+def _pretty_month_label(month_tag: str) -> str:
+    """'2026-06' -> 'Jun 2026'."""
+    try:
+        return datetime.strptime(month_tag, "%Y-%m").strftime("%b %Y")
+    except Exception:
+        return month_tag
+
+
+def _process_one_month(df_sales_all, df_city_all, df_ads_all,
+                       month_tag: str, output_dir: Path):
+    """Slice the raw dataframes to a single month and run the full pipeline,
+    writing index.json, skus.json, city.json into output_dir.
+
+    Returns a small dict of stats for the manifest."""
+    print(f"[process.py] ── Processing month {month_tag} ──")
+
+    df_sales_raw = _slice_by_month(df_sales_all, month_tag)
+    df_city_raw  = _slice_by_month(df_city_all,  month_tag)
+    df_ads_raw   = _slice_by_month(df_ads_all,   month_tag)
+
+    print(f"  After month filter — Sales: {len(df_sales_raw)}, City: {len(df_city_raw)}, Ads: {len(df_ads_raw)}")
+
+    if df_sales_raw.empty:
+        print(f"  [skip] No sales rows for {month_tag}")
+        return None
+
+    return _run_pipeline(df_sales_raw, df_city_raw, df_ads_raw, month_tag, output_dir)
+
+
 def run(sales_path: str, city_path: str = None, ads_path: str = None,
         output_path: str = "processed.json"):
+    """Top-level orchestrator.
 
+    Loads raw sheets once, detects available months, then processes each month
+    into its own subdirectory (output/YYYY-MM/). Copies the latest month's
+    files to output/ root for backwards compat, and writes months.json manifest.
+    """
     print(f"[process.py] Loading data...")
     df_sales, df_city, df_ads = load_data(sales_path, city_path, ads_path)
 
     print(f"  Sales rows: {len(df_sales)}, City rows: {len(df_city)}, Ads rows: {len(df_ads)}")
+
+    months, latest, source = _detect_months(df_sales, df_city, df_ads)
+    print(f"[process.py] Month detection: source={source}, months={months}, latest={latest}")
+
+    output_root = Path(output_path).parent
+    output_root.mkdir(parents=True, exist_ok=True)
+
+    manifest_months = []
+    for m in months:
+        month_dir = output_root / m
+        month_dir.mkdir(parents=True, exist_ok=True)
+        stats = _process_one_month(df_sales, df_city, df_ads, m, month_dir)
+        if stats is None:
+            continue
+        manifest_months.append({
+            "month":       m,
+            "label":       _pretty_month_label(m),
+            "sku_count":   stats["sku_count"],
+            "generated_at": stats["generated_at"],
+        })
+
+    # ── Copy latest month's files to output root (backwards-compat) ─────────
+    if manifest_months:
+        latest_present = manifest_months[-1]["month"]  # months sorted asc
+        for fn in ("index.json", "skus.json", "city.json"):
+            src = output_root / latest_present / fn
+            dst = output_root / fn
+            if src.exists():
+                dst.write_bytes(src.read_bytes())
+        print(f"[process.py] Copied {latest_present} files to output root")
+
+    # ── Write manifest ──────────────────────────────────────────────────────
+    manifest = {
+        "generated_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "source":       source,
+        "latest":       manifest_months[-1]["month"] if manifest_months else None,
+        "months":       manifest_months,
+    }
+    with open(output_root / "months.json", "w", encoding="utf-8") as f:
+        json.dump(manifest, f, ensure_ascii=False, indent=2)
+    print(f"[process.py] Manifest written: {len(manifest_months)} months, latest={manifest['latest']}")
+
+    return manifest
+
+
+def _run_pipeline(df_sales, df_city, df_ads, month_tag: str, output_dir: Path):
+    """The original single-month processing pipeline.
+    Takes raw (unnormalised) dataframes for ONE month and writes the 3 JSON files
+    into output_dir. Returns stats for manifest."""
 
     # ── Sales ──
     df_sales = process_sales(df_sales)
@@ -837,7 +1011,10 @@ def run(sales_path: str, city_path: str = None, ads_path: str = None,
             "3": r.get("l3m_qty",  0),
         }
 
-    output_dir = Path(output_path).parent
+    # Enrich meta with month tag so the dashboard knows what it's rendering
+    meta["month"]       = month_tag
+    meta["month_label"] = _pretty_month_label(month_tag)
+
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # index.json — meta + channels + heatmap + actions (~82 KB)
@@ -860,7 +1037,11 @@ def run(sales_path: str, city_path: str = None, ads_path: str = None,
     print(f"  SKUs: {len(sku_rows)}, Channels: {len(channels)}, City rows: {len(city_rows)}")
     print(f"  Flags — critical: {flag_totals['critical']}, warning: {flag_totals['warning']}, opportunity: {flag_totals['opportunity']}")
 
-    return out
+    return {
+        "sku_count":    len(sku_rows),
+        "generated_at": meta["generated_at"],
+        "month":        month_tag,
+    }
 
 
 # ─── CLI ──────────────────────────────────────────────────────────────────────
