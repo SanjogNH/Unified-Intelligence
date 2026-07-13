@@ -1180,6 +1180,12 @@ function derivePerfMetrics(row) {
 let MONTHS_MANIFEST = null;   // {latest, months:[{month,label,sku_count,generated_at}], ...}
 let CURRENT_MONTH   = null;   // e.g. "2026-06" — null when running against legacy single-file layout
 
+// Plan mode — 'time' = linear time pro-rata (Planned × MTD_days/total_days);
+// 'phased' = team-provided phased target from the sheet's Phased * columns.
+// Resets to 'phased' on every page load per product requirement; the toggle
+// re-derives Prorata_Planned_* + Rev_Ach_Pct on ALL_DATA and re-renders.
+let PLAN_MODE = 'phased';
+
 // Resolve which month to load. Order of precedence:
 //   1. ?month=YYYY-MM in the URL (if that month exists in the manifest)
 //   2. manifest.latest
@@ -1244,8 +1250,14 @@ async function loadData() {
 
     // Expand short keys → ALL_DATA format the existing rendering code expects
     ALL_DATA = allSkus.map(r => {
-      const proR = r.xR || 0;
-      const proQ = r.xQ || 0;
+      const proR = r.xR || 0;                    // time-pro-rated plan (revenue)
+      const proQ = r.xQ || 0;                    // time-pro-rated plan (qty)
+      const phR  = (r.hR != null ? r.hR : 0);    // phased plan (revenue) — may be missing
+      const phQ  = (r.hQ != null ? r.hQ : 0);    // phased plan (qty)
+      // Effective plan under current mode. Silent fallback to time-pro-rated
+      // when phased is blank/zero for a given SKU.
+      const effR = (PLAN_MODE === 'phased' && phR > 0) ? phR : proR;
+      const effQ = (PLAN_MODE === 'phased' && phQ > 0) ? phQ : proQ;
       const actR = r.aR || 0;
       const actQ = r.aQ || 0;
       const lmR  = r.lR || 0;
@@ -1257,17 +1269,23 @@ async function loadData() {
         Category:                 r.c,
         Planned_Revenue:          r.pR || 0,
         Planned_Qty:              r.pQ || 0,
-        Prorata_Planned_Revenue:  proR,
-        Prorata_Planned_Qty:      proQ,
+        // Both plan bases retained so the toggle can switch without reload
+        TimeProrata_Planned_Revenue: proR,
+        TimeProrata_Planned_Qty:     proQ,
+        Phased_Planned_Revenue:      phR,
+        Phased_Planned_Qty:          phQ,
+        // The "active" plan (mode-dependent) — every downstream calc reads these
+        Prorata_Planned_Revenue:  effR,
+        Prorata_Planned_Qty:      effQ,
         Actual_Revenue:           actR,
         Actual_Qty:               actQ,
         LM_Revenue:               lmR,
         LM_Qty:                   r.lQ || 0,
         L3M_Revenue:              r['3R'] || 0,
         L3M_Qty:                  r['3Q'] || 0,
-        Rev_Ach_Pct:              proR > 0 ? actR / proR * 100 : 0,
-        Qty_Ach_Pct:              proQ > 0 ? actQ / proQ * 100 : 0,
-        Rev_Delta:                actR - proR,
+        Rev_Ach_Pct:              effR > 0 ? actR / effR * 100 : 0,
+        Qty_Ach_Pct:              effQ > 0 ? actQ / effQ * 100 : 0,
+        Rev_Delta:                actR - effR,
         Disc_Pct:                 0,
         _proRatio:                pr,
         _topFlag:                 r.tf || null,
@@ -1410,6 +1428,12 @@ function initDashboard() {
   hr.innerHTML = monthPickerHtml + `
     <div class="hdr-badge" id="rec-badge">${ALL_DATA.length} rows</div>
     <div class="hdr-badge ok">MTD: ${MTD_DATE_STR}</div>
+    <div class="hdr-divider"></div>
+    <span class="filter-label">Plan</span>
+    <div class="view-tabs" title="Time = linear pro-rata by MTD days · Phased = team's actual sales-till-date target">
+      <div class="view-tab${PLAN_MODE==='time'?' active':''}"   data-plan="time"   onclick="setPlanMode('time',this)">Time Pro-rated</div>
+      <div class="view-tab${PLAN_MODE==='phased'?' active':''}" data-plan="phased" onclick="setPlanMode('phased',this)">Phased</div>
+    </div>
     <div class="hdr-divider"></div>
     <span class="filter-label">Metric</span>
     <div class="view-tabs">
@@ -1601,6 +1625,32 @@ function setView(v, el) {
   document.querySelectorAll('[data-view]').forEach(e => e.classList.remove('active'));
   el.classList.add('active');
   render();
+}
+
+// Switch the active plan basis (time-pro-rated vs phased) and re-derive
+// Prorata_Planned_* + Rev_Ach_Pct / Qty_Ach_Pct / Rev_Delta on every row.
+// Rows whose phased plan is blank/zero silently fall back to time-pro-rated.
+function setPlanMode(mode, el) {
+  if (mode !== 'time' && mode !== 'phased') return;
+  if (mode === PLAN_MODE) return;
+  PLAN_MODE = mode;
+  document.querySelectorAll('[data-plan]').forEach(e => e.classList.remove('active'));
+  if (el) el.classList.add('active');
+
+  ALL_DATA.forEach(r => {
+    const proR = r.TimeProrata_Planned_Revenue || 0;
+    const proQ = r.TimeProrata_Planned_Qty     || 0;
+    const phR  = r.Phased_Planned_Revenue      || 0;
+    const phQ  = r.Phased_Planned_Qty          || 0;
+    const effR = (PLAN_MODE === 'phased' && phR > 0) ? phR : proR;
+    const effQ = (PLAN_MODE === 'phased' && phQ > 0) ? phQ : proQ;
+    r.Prorata_Planned_Revenue = effR;
+    r.Prorata_Planned_Qty     = effQ;
+    r.Rev_Ach_Pct             = effR > 0 ? r.Actual_Revenue / effR * 100 : 0;
+    r.Qty_Ach_Pct             = effQ > 0 ? r.Actual_Qty     / effQ * 100 : 0;
+    r.Rev_Delta               = r.Actual_Revenue - effR;
+  });
+  applyFilters();  // recomputes `filtered` + re-renders
 }
 
 // ─── Aggregate ───
@@ -2492,6 +2542,28 @@ function openPerfPanel(channel, skuDisplay, skuCode, category) {
   _ppSku = { channel, skuDisplay, skuCode, category };
   document.getElementById('pp-sku-name').textContent = skuDisplay;
   document.getElementById('pp-sku-meta').textContent = channel + ' · ' + category;
+
+  // Derive default LFM / L3M months from the currently-selected month so the
+  // panel doesn't show stale hard-coded defaults when the user is on July but
+  // the inputs still read May / Feb. LFM = current − 1 month; L3M start =
+  // current − 4 months (so L3M spans the 3 months immediately before LFM).
+  const lfmEl  = document.getElementById('pp-lfm-month');
+  const l3mEl  = document.getElementById('pp-l3m-start-month');
+  const anchor = ppParseMonth(CURRENT_MONTH) || (() => {
+    // Legacy fallback: derive from today's date
+    const d = new Date();
+    return { year: d.getFullYear(), month: d.getMonth() + 1 };
+  })();
+  const shiftMonth = (year, month, delta) => {
+    // month is 1–12. Positive delta moves forward, negative moves back.
+    const zeroIdx = (month - 1) + delta;
+    const y = year + Math.floor(zeroIdx / 12);
+    const m = ((zeroIdx % 12) + 12) % 12 + 1;
+    return `${y}-${String(m).padStart(2, '0')}`;
+  };
+  if (lfmEl) lfmEl.value = shiftMonth(anchor.year, anchor.month, -1);
+  if (l3mEl) l3mEl.value = shiftMonth(anchor.year, anchor.month, -4);
+
   document.getElementById('perf-panel-overlay').classList.add('open');
   document.getElementById('perf-panel').classList.add('open');
   renderPerfPanel();
