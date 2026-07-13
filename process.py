@@ -199,6 +199,7 @@ def process_sales(df: pd.DataFrame) -> pd.DataFrame:
     # Numeric coerce
     num_cols = [
         "Planned Quantity", "Planned MRP Revenue", "Planned SP Revenue",
+        "Phased Quantity", "Phased MRP Revenue", "Phased SP Revenue",
         "MTD Actual Quantity", "MTD Actual MRP Revenue", "MTD Actual SP Revenue",
         "Last Month Units", "Last Month SP Revenue",
         "Last 3month Units", "Last 3month SP Revenue",
@@ -206,9 +207,15 @@ def process_sales(df: pd.DataFrame) -> pd.DataFrame:
     for c in num_cols:
         df[c] = pd.to_numeric(df.get(c, 0), errors="coerce").fillna(0)
 
-    # Pro-rata plan
+    # Pro-rata plan (time-based — linear split of monthly plan by MTD days)
     df["prorata_rev"] = df["Planned SP Revenue"] * df["_pro_ratio"]
     df["prorata_qty"] = df["Planned Quantity"]   * df["_pro_ratio"]
+
+    # Phased plan (team-provided actual expected sales-till-date target).
+    # When phased columns are blank / zero, the client silently falls back
+    # to the time-pro-rated value for that SKU, so we emit them raw.
+    df["phased_rev"] = df["Phased SP Revenue"]
+    df["phased_qty"] = df["Phased Quantity"]
 
     # Achievement
     df["rev_ach_pct"] = df.apply(lambda r: div(r["MTD Actual SP Revenue"], r["prorata_rev"], 100), axis=1)
@@ -628,7 +635,8 @@ def _find_month_column(df: pd.DataFrame):
     if df is None or df.empty:
         return None
     for c in df.columns:
-        if str(c).strip().lower() == "month":
+        name = str(c).strip().lower()
+        if name in ("month", "report month"):
             return c
     return None
 
@@ -814,6 +822,8 @@ def _run_pipeline(df_sales, df_city, df_ads, month_tag: str, output_dir: Path):
             "planned_qty":    safe(s.get("Planned Quantity")),
             "prorata_rev":    safe(s.get("prorata_rev")),
             "prorata_qty":    safe(s.get("prorata_qty")),
+            "phased_rev":     safe(s.get("phased_rev")),
+            "phased_qty":     safe(s.get("phased_qty")),
 
             # ── actuals ──
             "mtd_actual_rev": safe(s.get("MTD Actual SP Revenue")),
@@ -960,6 +970,8 @@ def _run_pipeline(df_sales, df_city, df_ads, month_tag: str, output_dir: Path):
             "pQ": r2(r["planned_qty"]),
             "xR": r2(r["prorata_rev"]),
             "xQ": r2(r["prorata_qty"]),
+            "hR": r2(r.get("phased_rev")),
+            "hQ": r2(r.get("phased_qty")),
             "aR": r2(r["mtd_actual_rev"]),
             "aQ": r2(r["mtd_actual_qty"]),
             "lR": r2(r["lm_rev"]),
