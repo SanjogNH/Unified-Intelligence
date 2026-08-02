@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T12:19:46Z",
+  "generated_at": "2026-08-02T05:16:46Z",
   "source": "column",
   "latest": "2026-07",
   "months": [
@@ -7,13 +7,13 @@
       "month": "2026-06",
       "label": "Jun 2026",
       "sku_count": 3154,
-      "generated_at": "2026-07-31T12:19:44Z"
+      "generated_at": "2026-08-02T05:16:43Z"
     },
     {
       "month": "2026-07",
       "label": "Jul 2026",
       "sku_count": 2979,
-      "generated_at": "2026-07-31T12:19:46Z"
+      "generated_at": "2026-08-02T05:16:45Z"
     }
   ]
 }
