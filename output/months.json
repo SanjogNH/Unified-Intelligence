@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-05T05:40:47Z",
+  "generated_at": "2026-11-05T08:42:28Z",
   "source": "column",
   "latest": "2026-11",
   "months": [
@@ -7,37 +7,37 @@
       "month": "2026-06",
       "label": "Jun 2026",
       "sku_count": 3154,
-      "generated_at": "2026-11-05T05:40:27Z"
+      "generated_at": "2026-11-05T08:42:18Z"
     },
     {
       "month": "2026-07",
       "label": "Jul 2026",
       "sku_count": 2987,
-      "generated_at": "2026-11-05T05:40:31Z"
+      "generated_at": "2026-11-05T08:42:20Z"
     },
     {
       "month": "2026-08",
       "label": "Aug 2026",
       "sku_count": 3614,
-      "generated_at": "2026-11-05T05:40:35Z"
+      "generated_at": "2026-11-05T08:42:21Z"
     },
     {
       "month": "2026-09",
       "label": "Sep 2026",
       "sku_count": 3722,
-      "generated_at": "2026-11-05T05:40:39Z"
+      "generated_at": "2026-11-05T08:42:23Z"
     },
     {
       "month": "2026-10",
       "label": "Oct 2026",
       "sku_count": 3821,
-      "generated_at": "2026-11-05T05:40:43Z"
+      "generated_at": "2026-11-05T08:42:25Z"
     },
     {
       "month": "2026-11",
       "label": "Nov 2026",
       "sku_count": 3796,
-      "generated_at": "2026-11-05T05:40:47Z"
+      "generated_at": "2026-11-05T08:42:27Z"
     }
   ]
 }
